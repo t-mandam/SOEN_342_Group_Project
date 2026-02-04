@@ -8,4 +8,4 @@ Iteration 00
 |------|------------|-----------------|
 | Aboudraz, Reema | 40253549 | reemaaboudraz |
 | Mandamiento Rodriguez, Theo-Dayan | 40310410 | t_mandam |
-| Seddaoui, Lyne | 40252125 | ### |
+| Seddaoui, Lyne | 40252125 | lynesdd |
