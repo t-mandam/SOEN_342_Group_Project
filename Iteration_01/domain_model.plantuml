@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+Object Console
+object Task
+object Subtask
+object TaskCatalog
+object Update
+object UpdateLog
+object Tag
+object Project
+object View
+
+Console -- UpdateLog : controls
+Console -- View : updates
+TaskCatalog *-- "*" Task
+TaskCatalog *-- "*" Project
+Task <|-- Subtask
+Task *-- Subtask
+Project o-- Task : regroups
+Task "*" -- "*" Tag : has
+UpdateLog *-- "*" Update
+Update "*" -- TaskCatalog : updates
+View -- TaskCatalog : uses
+@enduml
