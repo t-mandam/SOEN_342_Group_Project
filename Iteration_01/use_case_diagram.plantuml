@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+actor User as u
+rectangle System {
+   usecase "Manage Tasks" as mt
+     usecase "Create Task" as ctk
+       usecase "Create Subtask" as cs
+       ctk ..> cs : extends
+     usecase "Update Task" as ut
+     mt ..> ctk : include
+     mt ..> ut : include
+
+   usecase "Manage Projects" as mp
+     usecase "Create Project" as cp
+     usecase "Assign Task to Project" as attp
+     mp ..> cp : include
+     mp ..> attp : include
+
+   usecase "Monitor Tasks" as mot
+     usecase "Filter Tasks" as ft
+     usecase "Sort Tasks" as st
+     usecase "Search Task" as srch
+     mot ..> ft : include
+     mot ..> st : include
+     mot ..> srch : include
+   usecase "Create Tag" as ctg
+}
+u --> mt
+u --> mp
+u --> mot
+@enduml
