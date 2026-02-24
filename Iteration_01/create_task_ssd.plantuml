@@ -1,0 +1,20 @@
+@startuml
+title SSD - Create Task (Success + Failure)
+
+actor User
+participant "Personal Task Management System" as System
+
+User -> System: createTask(title, description?, priority, dueDate?)
+activate System
+
+alt Valid input (title present, priority valid, dueDate valid/empty)
+  System -> System: create Task(status="open", creationDate=now)
+  System -> System: store Task
+  System -> System: recordActivity(taskId, "Task created", timestamp=now)
+  System --> User: taskCreated(taskId, status="open")
+else Invalid input
+  System --> User: error("Invalid task data: missing title / invalid priority / invalid due date")
+end
+
+deactivate System
+@enduml
