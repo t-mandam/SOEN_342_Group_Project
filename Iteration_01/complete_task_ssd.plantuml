@@ -1,0 +1,21 @@
+@startuml
+title SSD - Complete Task (Success + Failure)
+
+actor User
+participant "Personal Task Management System" as System
+
+User -> System: completeTask(taskId)
+activate System
+
+alt Task exists AND status == "open"
+  System -> System: findTask(taskId)
+  System -> System: setStatus(taskId, "completed")
+  System -> System: store Task (completed)
+  System -> System: recordActivity(taskId, "Task completed", timestamp=now)
+  System --> User: taskCompleted(taskId)
+else Task not found OR not completable
+  System --> User: error("Cannot complete: task not found OR already completed/cancelled")
+end
+
+deactivate System
+@enduml
