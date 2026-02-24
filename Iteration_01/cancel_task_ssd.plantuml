@@ -1,0 +1,21 @@
+@startuml
+title SSD - Cancel Task (Success + Failure)
+
+actor User
+participant "Personal Task Management System" as System
+
+User -> System: cancelTask(taskId)
+activate System
+
+alt Task exists AND status != "completed" AND status != "cancelled"
+  System -> System: findTask(taskId)
+  System -> System: setStatus(taskId, "cancelled")
+  System -> System: store Task (cancelled)
+  System -> System: recordActivity(taskId, "Task cancelled", timestamp=now)
+  System --> User: taskCancelled(taskId)
+else Task not found OR not cancellable
+  System --> User: error("Cannot cancel: task not found OR already completed/cancelled")
+end
+
+deactivate System
+@enduml
