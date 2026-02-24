@@ -1,0 +1,23 @@
+@startuml
+title SSD - View Tasks (Success + Failure)
+
+actor User
+participant "Personal Task Management System" as System
+
+User -> System: viewTasks(criteria:\n{sortBy?, filterBy?,\n dueDate?, dateRange?,\n status?, project?, tag?,\n keyword?})
+activate System
+
+alt Criteria valid
+  System -> System: validateCriteria(criteria)
+  System -> System: queryTasks(criteria)
+  alt Results found
+    System --> User: displayTaskList(tasks)
+  else No results
+    System --> User: displayTaskList(empty)  \n("No tasks match criteria")
+  end
+else Criteria invalid
+  System --> User: error("Invalid view criteria (bad date range / unknown filter/sort option)")
+end
+
+deactivate System
+@enduml
