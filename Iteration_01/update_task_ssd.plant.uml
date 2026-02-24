@@ -1,0 +1,21 @@
+@startuml
+title SSD - Update Task (Success + Failure)
+
+actor User
+participant "Personal Task Management System" as System
+
+User -> System: updateTask(taskId, changes:\n{title?, description?, priority?, dueDate?, status?, project?, tags?})
+activate System
+
+alt Task exists AND changes valid
+  System -> System: findTask(taskId)
+  System -> System: applyChanges(taskId, changes)
+  System -> System: store Task (updated)
+  System -> System: recordActivity(taskId, "Task updated", timestamp=now)
+  System --> User: taskUpdated(taskId)
+else Task not found OR invalid change
+  System --> User: error("Cannot update: task not found OR invalid update (e.g., bad status/fields)")
+end
+
+deactivate System
+@enduml
