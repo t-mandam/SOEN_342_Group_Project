@@ -1,17 +1,27 @@
 @startuml
 left to right direction
 Object Console
-object Task
-object Subtask
 object TaskCatalog
+object Task
+   Task : title
+   Task : description
+   Task : creationDate
+   Task : dueDate
+   Task : priority
+   Task : status
+object Subtask
 object Update
+   Update : timestamp
+   Update : description
 object UpdateLog
 object Tag
 object Project
+   Project : name
+   Project : description
 object View
 
 Console -- UpdateLog : controls
-Console -- View : updates
+Console -- View : chooses
 TaskCatalog *-- "*" Task
 TaskCatalog *-- "*" Project
 Task <|-- Subtask
@@ -19,6 +29,7 @@ Task *-- Subtask
 Project o-- Task : regroups
 Task "*" -- "*" Tag : has
 UpdateLog *-- "*" Update
-Update "*" -- TaskCatalog : updates
+UpdateLog -- TaskCatalog : logs updates of
+Update "*" -- Task : updates
 View -- TaskCatalog : uses
 @enduml
