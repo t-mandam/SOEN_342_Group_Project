@@ -27,9 +27,10 @@ TaskCatalog *-- "*" Project
 Task <|-- Subtask
 Task *-- Subtask
 Project o-- Task : regroups
-Task "*" -- "*" Tag : has
-UpdateLog *-- "*" Update
+Task "*" - "*" Tag : has
+UpdateLog *- "*" Update
 UpdateLog -- TaskCatalog : logs updates of
 Update "*" -- Task : updates
-View -- TaskCatalog : uses
+View - UpdateLog : shows
+View -- TaskCatalog : shows
 @enduml
