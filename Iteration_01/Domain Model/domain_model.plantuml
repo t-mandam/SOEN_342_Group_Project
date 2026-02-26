@@ -3,6 +3,7 @@ left to right direction
 Object Console
 object TaskCatalog
 object Task
+   Task : id
    Task : title
    Task : description
    Task : creationDate
