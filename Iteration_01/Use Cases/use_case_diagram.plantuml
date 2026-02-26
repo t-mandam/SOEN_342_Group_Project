@@ -1,7 +1,7 @@
 @startuml
 left to right direction
 actor User as u
-rectangle System {
+rectangle "Personal Task Management System" {
    usecase "Manage Tasks" as mt
      usecase "Create Task" as ctk
        usecase "Create Subtask" as cs
