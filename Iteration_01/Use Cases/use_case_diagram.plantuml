@@ -4,8 +4,7 @@ actor User as u
 rectangle "Personal Task Management System" {
    usecase "Manage Tasks" as mt
      usecase "Create Task" as ctk
-       usecase "Create Subtask" as cs
-       cs ..> ctk : extends
+     usecase "Create Subtask" as cs
      usecase "Update Task" as ut
        usecase "Complete Task" as cmpt
        usecase "Cancel Task" as cclt
@@ -24,6 +23,7 @@ rectangle "Personal Task Management System" {
        ut ..> cdd : include
      usecase "Create Tag" as ctg
      mt ..> ctk : include
+     mt ..> cs : include
      mt ..> ut : include
      mt ..> ctg : include
 
@@ -35,15 +35,31 @@ rectangle "Personal Task Management System" {
      mp ..> attp : include
      mp ..> rtfp : include
 
-   usecase "Monitor Tasks" as mot
+   usecase "View Tasks" as vt
      usecase "Filter Tasks" as ft
+       usecase "Filter by Date Range" as fbdr
+       ft ..> fbdr : include
      usecase "Sort Tasks" as st
+       usecase "Sort by Due Date" as stbdd
+       usecase "Sort by Priority" as stbp
+       usecase "Sort by Status" as stbs
+       usecase "Sort by Project" as stbpj
+       usecase "Sort by Tag" as stbtg
+       st ..> stbdd : include
+       st ..> stbp : include
+       st ..> stbs : include
+       st ..> stbpj : include
+       st ..> stbtg : include
      usecase "Search Task" as srch
-     mot ..> ft : include
-     mot ..> st : include
-     mot ..> srch : include
+       usecase "Search by Keyword" as shbk
+       usecase "Seach by Date" as shbd
+       srch ..> shbk : include
+       srch ..> shbd : include
+     vt ..> ft : include
+     vt ..> st : include
+     vt ..> srch : include
 }
 u --> mt
 u --> mp
-u --> mot
+u --> vt
 @enduml
