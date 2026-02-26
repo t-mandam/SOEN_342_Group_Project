@@ -1,4 +1,4 @@
-**System Operation** : *completeTask*  
+**System Operation** : *completeTask(id)*  
 **Contract CO2** : completeTask  
 
 **Operation** : `completeTask(id: integer)`  
