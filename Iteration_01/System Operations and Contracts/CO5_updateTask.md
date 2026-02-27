@@ -7,4 +7,4 @@
 **Postconditions** :  
 + `Task.attribute` is modified
 + Subtype of `Update` instance is created
-+ `Update` is associated to `UpdateLog`
++ `Update` instance is associated to `UpdateLog`
