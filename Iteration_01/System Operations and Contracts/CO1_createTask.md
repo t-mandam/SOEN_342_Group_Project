@@ -3,7 +3,7 @@
 
 **Operation** : `createTask(title: String, description: String)`  
 **Cross References** : Use Case: Create Task  
-**Preconditions** : none  
+**Preconditions** : title and description are valid Strings  
 **Postconditions** :  
 + `Task` instance created
 + `Task.title`, `Task.description`, and `Task.status` respectively set to title, description, and "open"
