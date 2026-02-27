@@ -7,14 +7,12 @@ participant "Personal Task Management System" as System
 User -> System: completeTask(taskId)
 activate System
 
-alt Task exists AND status == "open"
-  System -> System: findTask(taskId)
-  System -> System: setStatus(taskId, "completed")
-  System -> System: store Task (completed)
-  System -> System: recordActivity(taskId, "Task completed", timestamp=now)
+alt Task exists AND completable (status == "open")
   System --> User: taskCompleted(taskId)
-else Task not found OR not completable
-  System --> User: error("Cannot complete: task not found OR already completed/cancelled")
+else Task not found
+  System --> User: error("Task not found")
+else Not completable (already completed/cancelled)
+  System --> User: error("Task cannot be completed")
 end
 
 deactivate System
