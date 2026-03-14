@@ -1,0 +1,198 @@
+@startuml
+left to right direction
+
+class Task {
+  -id : String
+  -title : String
+  -description : String
+  -creationDate : LocalDateTime
+  -dueDate : LocalDateTime
+  -priority : Priority
+  -status : Status
+  -subtasks : List<Subtask>
+  -tags : List<Tag>
+  -recurrence : Recurrence
+
+  +addSubtask(subtask : Subtask)
+  +addTag(tag : Tag)
+  +removeTag(tag : Tag)
+  +complete()
+  +cancel()
+  +updatePriority(priority : Priority)
+}
+
+class Subtask {
+  -parentTask : Task
+}
+
+class Occurrence {
+  -dueDate : LocalDateTime
+}
+
+class Recurrence {
+  -type : RecurrenceType
+  -startDate: Date
+  +generateOccurrences(task : Task) : List<Occurrence>
+}
+
+class Project {
+  -name : String
+  -description : String
+  -tasks : List<Task>
+  -collaborators : List<Collaborator>
+
+  +addTask(task : Task)
+  +removeTask(task : Task)
+  +addCollaborator(collaborator : Collaborator)
+}
+
+class TaskCatalog {
+  -tasks : List<Task>
+  -projects : List<Project>
+  -instance : TaskCatalog
+
+  +getInstance() : TaskCatalog
+  +addTask(task : Task) : Task
+  +completeTask(task : Task)
+  +cancelTask(task : Task)
+  +addProject(project : Project)
+  +getTasks() : List<Task>
+  +getProjects() : List<Project>
+  +addSubtask(parent : Task)
+}
+
+class Tag {
+  -name : String
+  +getName() : String
+}
+
+class Activity {
+  -timestamp : Date
+  -description : String
+  -task : Task
+}
+
+class ActivityLog {
+  -activities: List<Activity>
+  -instance : ActivityLog
+  +getInstance() : ActivityLog
+  +logActivity(task : Task, description : String)
+  +getActivitiesForTask(task: Task)
+}
+
+abstract class Collaborator {
+  #name : String
+  #maxOpenTasks : int
+  +getName() : String
+  +getCategory() : String
+}
+
+class Junior
+class Intermediate
+class Senior
+
+class Assignment {
+  -collaborator : Collaborator
+  -subtask : Subtask
+}
+
+class Search {
+  +search(catalog : TaskCatalog, criteria : Criteria) : List<Task>
+}
+
+class Sort {
+  +sortByDueDate(tasks : List<Task>) : List<Task>
+  +sortByPriority(tasks : List<Task>) : List<Task>
+  +sortByCreationDate(tasks : List<Task>) : List<Task>
+}
+
+class Criteria {
+  -titleKeyword : String
+  -fromDate : LocalDateTime
+  -toDate : LocalDateTime
+  -status : Status
+  +matches(task : Task) : boolean
+}
+
+class Import {
+  +importTasks(catalog : TaskCatalog, filePath : String)
+}
+
+class Export {
+  +exportTasks(tasks : List<Task>, filePath : String)
+}
+
+class Console {
+  -catalog : TaskCatalog
+  -activityLog : ActivityLog
+  -search : Search
+  -sort : Sort
+  -importer : Import
+  -exporter : Export
+
+  +createTask(title : String, description : String) : Task
+  +updateTask(
+  +displayTasks()
+  +searchTasks(criteria : Criteria)
+  +sortTasks()
+  +importTasks(file : String)
+  +exportTasks(file : String)
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Status {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum RecurrenceType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  SPECIFIC_WEEKDAY
+}
+
+Task <|-- Subtask
+Collaborator <|-- Junior
+Collaborator <|-- Intermediate
+Collaborator <|-- Senior
+
+Task *-- "*" Subtask
+Task "*" -- "*" Tag
+Task -- "0..1" Recurrence
+Recurrence -- "*" Occurrence
+
+TaskCatalog *-- Task
+TaskCatalog *-- Project
+
+Project o-- "*" Task
+Project -- "*" Collaborator
+
+ActivityLog *-- Activity
+Activity "*" -- "1" Task
+
+Assignment "*" -- Subtask
+Assignment "*" -- Collaborator
+
+Console --> TaskCatalog
+Console --> ActivityLog
+Console --> Search
+Console --> Sort
+Console --> Import
+Console --> Export
+Console --> Criteria
+
+Search --> TaskCatalog
+Sort --> Task
+Import --> TaskCatalog
+Export --> Search
+
+Search .. Criteria
+
+@enduml
