@@ -1,0 +1,35 @@
+@startuml
+title Interaction Diagram - Create Task
+autonumber
+
+participant "console: Console" as console
+participant "createTaskCommand: CreateTaskCommand" as createTaskCommand
+participant "taskFactory: TaskFactory" as taskFactory
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : createTask(title)
+
+create createTaskCommand
+console -> createTaskCommand : create()
+console -> console : executeCommand(createTaskCommand)
+console -> createTaskCommand : createTask(title)
+
+createTaskCommand -> taskFactory : createTask(title)
+create task
+taskFactory -> task : create(title)
+task --> taskFactory : task created
+taskFactory --> createTaskCommand : task
+
+createTaskCommand -> repo : addTask(task)
+
+createTaskCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task created")
+activity --> activityLog : activity created
+
+createTaskCommand --> console : taskCreated()
+[<- console : confirmation
+@enduml

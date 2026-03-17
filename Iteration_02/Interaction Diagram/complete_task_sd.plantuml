@@ -1,0 +1,33 @@
+@startuml
+title Interaction Diagram - Complete Task
+autonumber
+
+participant "console: Console" as console
+participant "updateTaskCommand: UpdateTaskCommand" as updateTaskCommand
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : completeTask(taskID)
+create updateTaskCommand
+console -> updateTaskCommand : create
+console -> console : executeCommand(updateTaskCommand)
+console -> updateTaskCommand : completeTask(taskID)
+
+updateTaskCommand -> repo : findAll()
+repo --> updateTaskCommand : tasks
+updateTaskCommand -> updateTaskCommand : find task by id
+
+updateTaskCommand -> task : completeTask()
+task --> updateTaskCommand : true
+
+updateTaskCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task completed")
+activity --> activityLog : activity created
+
+updateTaskCommand --> console : taskCompleted()
+[<- console : confirmation
+
+@enduml

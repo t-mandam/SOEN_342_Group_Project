@@ -1,0 +1,24 @@
+@startuml
+title Interaction Diagram - View Tasks 
+autonumber
+
+participant "console: Console" as console
+participant "searchCommand: SearchCommand" as searchCommand
+participant "criteria: Criteria" as criteria
+participant "repo: TaskRepository" as repo
+
+[-> console : viewTasks()
+create searchCommand
+console -> searchCommand : create()
+create criteria
+console -> criteria : create()
+console -> criteria : setStatus(OPEN)
+
+console -> console : executeCommand(searchCommand)
+console -> searchCommand : search(repo, criteria)
+searchCommand -> repo : findAll()
+repo --> searchCommand : tasks
+
+searchCommand --> console : openTasks
+[<- console : displayTasks(openTasks)
+@enduml

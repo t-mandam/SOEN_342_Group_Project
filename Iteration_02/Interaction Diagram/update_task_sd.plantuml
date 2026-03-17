@@ -1,0 +1,32 @@
+@startuml
+title Interaction Diagram - Update Task
+autonumber 
+
+participant "console: Console" as console
+participant "updateTaskCommand: UpdateTaskCommand" as updateTaskCommand
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : updateTask(taskID, title, description,\npriority, dueDate, status, project, tags)
+create updateTaskCommand
+console -> updateTaskCommand : create
+console -> console : executeCommand(updateTaskCommand)
+console -> updateTaskCommand : updateTask(taskID, title, description,\npriority, dueDate, status, project, tags)
+
+updateTaskCommand -> repo : findAll()
+repo --> updateTaskCommand : tasks
+updateTaskCommand -> updateTaskCommand : find task by id
+
+updateTaskCommand -> task : updateTask(title, description,\npriority, dueDate, status, project, tags)
+task --> updateTaskCommand : true
+
+updateTaskCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task updated")
+activity --> activityLog : activity created
+
+updateTaskCommand --> console : taskUpdated()
+[<- console : confirmation
+@enduml
