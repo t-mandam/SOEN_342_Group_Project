@@ -177,7 +177,7 @@ UpdateDueDateCommand --> TaskRepository
 UpdateTagsCommand --> TaskRepository
 AssignCollaboratorCommand --> Assignment
 ImportCommand --> TaskRepository
-ExportCommand --> TaskRepository
+ExportCommand --> SearchCommand
 
 class SearchCommand {
   +search(repo : TaskRepository, criteria : Criteria)
