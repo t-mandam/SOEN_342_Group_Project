@@ -1,0 +1,27 @@
+@startuml
+title SSD - Update Task (Success + Failure) - Iteration 1 + 2
+
+actor User
+participant "Personal Task Management System" as PTMS
+
+== Update Task ==
+User -> PTMS: updateTask(taskID, updatedTaskData)
+
+alt Task not found
+    PTMS --> User: displayError("Task not found")
+
+else Invalid task data
+    PTMS --> User: displayError("Invalid task data")
+
+else Invalid recurrence data
+    PTMS --> User: displayError("Invalid recurrence pattern or dates")
+
+else Collaborator overloaded
+    PTMS --> User: displayError("Collaborator task limit exceeded")
+
+else Update successful
+    PTMS --> User: displayTaskUpdated(taskID, updatedTaskData)
+    PTMS --> User: displayActivityLogged("Task updated")
+end
+
+@enduml
