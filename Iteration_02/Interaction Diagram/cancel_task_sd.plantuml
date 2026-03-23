@@ -1,9 +1,10 @@
 @startuml
 title Interaction Diagram - Cancel Task
 autonumber
+hide footbox
 
 participant "console: Console" as console
-participant "updateTaskCommand: UpdateTaskCommand" as updateTaskCommand
+participant "updateStatusCommand: UpdateStatusCommand" as updateStatusCommand
 participant "repo: TaskRepository" as repo
 participant "task: Task" as task
 participant "activityLog: ActivityLog" as activityLog
@@ -11,23 +12,24 @@ participant "activity: Activity" as activity
 
 [-> console : cancelTask(taskID)
 
-create updateTaskCommand
-console -> updateTaskCommand : create()
-console -> console : executeCommand(updateTaskCommand)
-console -> updateTaskCommand : cancelTask(taskID)
+create updateStatusCommand
+console -> updateStatusCommand : create(taskID)
+console -> console : executeCommand(updateStatusCommand)
+console -> updateStatusCommand : execute()
 
-updateTaskCommand -> repo : findAll()
-repo --> updateTaskCommand : tasks
-updateTaskCommand -> updateTaskCommand : find task by id
+updateStatusCommand -> repo : findById(taskID)
+repo --> updateStatusCommand : task
 
-updateTaskCommand -> task : cancelTask()
-task --> updateTaskCommand : true
+updateStatusCommand -> task : cancelTask()
+task --> updateStatusCommand : true
 
-updateTaskCommand -> activityLog : addActivity(activity)
+updateStatusCommand -> repo : updateTask(task)
+
+task -> activityLog : update(task)
 create activity
-activityLog -> activity  : create(timestamp, "Task cancelled")
+activityLog -> activity : create(timestamp, "Task cancelled")
 activity --> activityLog : activity created
 
-updateTaskCommand --> console : taskCancelled()
+updateStatusCommand --> console : taskCancelled()
 [<- console : confirmation
 @enduml
