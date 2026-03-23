@@ -1,6 +1,7 @@
 @startuml
 title Interaction Diagram - Create Task
 autonumber
+hide footbox
 
 participant "console: Console" as console
 participant "createTaskCommand: CreateTaskCommand" as createTaskCommand
@@ -13,9 +14,9 @@ participant "activity: Activity" as activity
 [-> console : createTask(title)
 
 create createTaskCommand
-console -> createTaskCommand : create()
+console -> createTaskCommand : create(title)
 console -> console : executeCommand(createTaskCommand)
-console -> createTaskCommand : createTask(title)
+console -> createTaskCommand : execute()
 
 createTaskCommand -> taskFactory : createTask(title)
 create task
@@ -25,7 +26,7 @@ taskFactory --> createTaskCommand : task
 
 createTaskCommand -> repo : addTask(task)
 
-createTaskCommand -> activityLog : addActivity(activity)
+task -> activityLog : update(task)
 create activity
 activityLog -> activity : create(timestamp, "Task created")
 activity --> activityLog : activity created

@@ -1,24 +1,43 @@
 @startuml
-title Interaction Diagram - View Tasks 
+title Interaction Diagram - View Tasks
 autonumber
+hide footbox
 
 participant "console: Console" as console
-participant "searchCommand: SearchCommand" as searchCommand
 participant "criteria: Criteria" as criteria
+participant "searchCommand: SearchCommand" as searchCommand
+participant "sortCommand: SortCommand" as sortCommand
+participant "dueDateSort: DueDateSort" as dueDateSort
 participant "repo: TaskRepository" as repo
 
 [-> console : viewTasks()
-create searchCommand
-console -> searchCommand : create()
+
 create criteria
 console -> criteria : create()
 console -> criteria : setStatus(OPEN)
 
+create searchCommand
+console -> searchCommand : create(criteria)
+
 console -> console : executeCommand(searchCommand)
-console -> searchCommand : search(repo, criteria)
+console -> searchCommand : execute()
 searchCommand -> repo : findAll()
 repo --> searchCommand : tasks
-
+searchCommand -> searchCommand : filter tasks using criteria
 searchCommand --> console : openTasks
-[<- console : displayTasks(openTasks)
+
+create sortCommand
+console -> sortCommand : create()
+console -> sortCommand : setStrategy(dueDateSort)
+
+create dueDateSort
+sortCommand -> dueDateSort : create()
+
+console -> console : executeCommand(sortCommand)
+console -> sortCommand : execute()
+sortCommand -> sortCommand : sort(openTasks)
+sortCommand --> console : sortedOpenTasks
+
+[<- console : displayTasks(sortedOpenTasks)
+
 @enduml
