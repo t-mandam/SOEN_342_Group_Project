@@ -1,45 +1,57 @@
 package com.taskmanagement.command;
 
 import com.taskmanagement.domain.Task;
-import com.taskmanagement.search.SearchCommand;
+import com.taskmanagement.repository.TaskRepository;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
  * Command to export tasks to an external destination
  */
 public class ExportCommand implements Command {
-    private SearchCommand searchCommand;
+    private TaskRepository taskRepository;
     private String exportDestination;
+    private ExportData exportData = new ExportData();
 
     public ExportCommand() {}
 
-    public ExportCommand(SearchCommand searchCommand, String exportDestination) {
-        this.searchCommand = searchCommand;
+    public ExportCommand(TaskRepository taskRepository, String exportDestination) {
+        this.taskRepository = taskRepository;
         this.exportDestination = exportDestination;
+    }
+
+    public ExportCommand(TaskRepository taskRepository, String exportDestination, ExportData exportData) {
+        this.taskRepository = taskRepository;
+        this.exportDestination = exportDestination;
+        this.exportData = exportData != null ? exportData : new ExportData();
     }
 
     @Override
     public void execute() {
-        if (searchCommand == null) {
-            throw new IllegalStateException("Search command cannot be null");
+        if (taskRepository == null) {
+            throw new IllegalStateException("Task repository cannot be null");
         }
         if (exportDestination == null || exportDestination.trim().isEmpty()) {
             throw new IllegalStateException("Export destination cannot be null or empty");
         }
 
-        // Use the search command to get the tasks to export
-        // In a real implementation, this would export tasks based on search criteria
-        System.out.println("Exporting tasks to: " + exportDestination);
+        try {
+            List<Task> tasksToExport = taskRepository.getAllTasks();
+            exportData.writeTasksToCsv(exportDestination, tasksToExport);
+
+            System.out.println(tasksToExport.size() + " task(s) exported to: " + exportDestination);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export tasks to: " + exportDestination, e);
+        }
     }
 
-    // Getters and setters
-    public SearchCommand getSearchCommand() {
-        return searchCommand;
+    public TaskRepository getTaskRepository() {
+        return taskRepository;
     }
 
-    public void setSearchCommand(SearchCommand searchCommand) {
-        this.searchCommand = searchCommand;
+    public void setTaskRepository(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     public String getExportDestination() {
@@ -48,5 +60,13 @@ public class ExportCommand implements Command {
 
     public void setExportDestination(String exportDestination) {
         this.exportDestination = exportDestination;
+    }
+
+    public ExportData getExportData() {
+        return exportData;
+    }
+
+    public void setExportData(ExportData exportData) {
+        this.exportData = exportData;
     }
 }
