@@ -1,0 +1,36 @@
+@startuml
+title Interaction Diagram - Update Title
+autonumber
+hide footbox
+
+participant "console: Console" as console
+participant "updateTitleCommand: UpdateTitleCommand" as updateTitleCommand
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : updateTitle(taskID, newTitle)
+
+create updateTitleCommand
+console -> updateTitleCommand : create(taskID, newTitle)
+console -> console : executeCommand(updateTitleCommand)
+console -> updateTitleCommand : execute()
+
+updateTitleCommand -> repo : findById(taskID)
+repo --> updateTitleCommand : task
+
+updateTitleCommand -> task : updateTitle(newTitle)
+task --> updateTitleCommand : true
+
+updateTitleCommand -> repo : updateTask(task)
+
+updateTitleCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task title updated")
+activity --> activityLog : activity created
+
+updateTitleCommand --> console : titleUpdated()
+[<- console : confirmation
+
+@enduml

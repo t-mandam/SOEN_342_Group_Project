@@ -1,0 +1,36 @@
+@startuml
+title Interaction Diagram - Update Description
+autonumber
+hide footbox
+
+participant "console: Console" as console
+participant "updateDescriptionCommand: UpdateDescriptionCommand" as updateDescriptionCommand
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : updateDescription(taskID, newDescription)
+
+create updateDescriptionCommand
+console -> updateDescriptionCommand : create(taskID, newDescription)
+console -> console : executeCommand(updateDescriptionCommand)
+console -> updateDescriptionCommand : execute()
+
+updateDescriptionCommand -> repo : findById(taskID)
+repo --> updateDescriptionCommand : task
+
+updateDescriptionCommand -> task : updateDescription(newDescription)
+task --> updateDescriptionCommand : true
+
+updateDescriptionCommand -> repo : updateTask(task)
+
+updateDescriptionCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task description updated")
+activity --> activityLog : activity created
+
+updateDescriptionCommand --> console : descriptionUpdated()
+[<- console : confirmation
+
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+title Interaction Diagram - Update Priority
+autonumber
+hide footbox
+
+participant "console: Console" as console
+participant "updatePriorityCommand: UpdatePriorityCommand" as updatePriorityCommand
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : updatePriority(taskID, newPriority)
+
+create updatePriorityCommand
+console -> updatePriorityCommand : create(taskID, newPriority)
+console -> console : executeCommand(updatePriorityCommand)
+console -> updatePriorityCommand : execute()
+
+updatePriorityCommand -> repo : findById(taskID)
+repo --> updatePriorityCommand : task
+
+updatePriorityCommand -> task : updatePriority(newPriority)
+task --> updatePriorityCommand : true
+
+updatePriorityCommand -> repo : updateTask(task)
+
+updatePriorityCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task priority updated")
+activity --> activityLog : activity created
+
+updatePriorityCommand --> console : priorityUpdated()
+[<- console : confirmation
+@enduml

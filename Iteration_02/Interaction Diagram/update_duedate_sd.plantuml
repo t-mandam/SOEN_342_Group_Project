@@ -1,0 +1,36 @@
+@startuml
+title Interaction Diagram - Update Due Date
+autonumber
+hide footbox
+
+participant "console: Console" as console
+participant "updateDueDateCommand: UpdateDueDateCommand" as updateDueDateCommand
+participant "repo: TaskRepository" as repo
+participant "task: Task" as task
+participant "activityLog: ActivityLog" as activityLog
+participant "activity: Activity" as activity
+
+[-> console : updateDueDate(taskID, newDueDate)
+
+create updateDueDateCommand
+console -> updateDueDateCommand : create(taskID, newDueDate)
+console -> console : executeCommand(updateDueDateCommand)
+console -> updateDueDateCommand : execute()
+
+updateDueDateCommand -> repo : findById(taskID)
+repo --> updateDueDateCommand : task
+
+updateDueDateCommand -> task : updateDueDate(newDueDate)
+task --> updateDueDateCommand : true
+
+updateDueDateCommand -> repo : updateTask(task)
+
+updateDueDateCommand -> activityLog : addActivity(activity)
+create activity
+activityLog -> activity : create(timestamp, "Task due date updated")
+activity --> activityLog : activity created
+
+updateDueDateCommand --> console : dueDateUpdated()
+[<- console : confirmation
+
+@enduml
