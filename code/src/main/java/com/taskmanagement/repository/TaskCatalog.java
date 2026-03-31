@@ -9,10 +9,15 @@ import java.util.List;
  * Concrete implementation of TaskRepository that stores tasks in memory
  */
 public class TaskCatalog implements TaskRepository {
+    private static final TaskCatalog INSTANCE = new TaskCatalog();
     private List<Task> taskCatalog;
 
-    public TaskCatalog() {
+    private TaskCatalog() {
         this.taskCatalog = new ArrayList<>();
+    }
+
+    public static TaskCatalog getInstance() {
+        return INSTANCE;
     }
 
     @Override

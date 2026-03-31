@@ -37,7 +37,7 @@ public class ExportCommand implements Command {
         }
 
         try {
-            List<Task> tasksToExport = taskRepository.getAllTasks();
+            List<Task> tasksToExport = taskRepository.findAll();
             exportData.writeTasksToCsv(exportDestination, tasksToExport);
 
             System.out.println(tasksToExport.size() + " task(s) exported to: " + exportDestination);
