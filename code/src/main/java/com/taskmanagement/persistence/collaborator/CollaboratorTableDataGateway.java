@@ -3,6 +3,7 @@ package com.taskmanagement.persistence.collaborator;
 import com.taskmanagement.persistence.DatabaseConnection;
 
 import com.taskmanagement.domain.Collaborator;
+import com.taskmanagement.util.SimpleIdGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ public class CollaboratorTableDataGateway {
      */
     public String insert(Collaborator collaborator) throws SQLException {
         String sql = "INSERT INTO collaborators (id, name, type) VALUES (?, ?, ?)";
-        String id = java.util.UUID.randomUUID().toString();
+        String id = SimpleIdGenerator.nextId();
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

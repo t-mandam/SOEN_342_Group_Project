@@ -4,6 +4,7 @@ import com.taskmanagement.domain.Collaborator;
 import com.taskmanagement.domain.Junior;
 import com.taskmanagement.domain.Intermediate;
 import com.taskmanagement.domain.Senior;
+import com.taskmanagement.util.SimpleIdGenerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,7 +60,7 @@ public class CollaboratorMapper {
      */
     public Object[] getInsertValues(Collaborator collaborator) {
         return new Object[]{
-            java.util.UUID.randomUUID().toString(),
+            SimpleIdGenerator.nextId(),
             collaborator.getName(),
             getCollaboratorType(collaborator)
         };

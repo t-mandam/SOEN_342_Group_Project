@@ -3,21 +3,19 @@ package com.taskmanagement.command;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.repository.TaskRepository;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Command to update a task's due date
  */
 public class UpdateDueDateCommand implements Command {
     private Task task;
-    private LocalDateTime newDueDate;
+    private LocalDate newDueDate;
     private TaskRepository taskRepository;
 
     public UpdateDueDateCommand() {}
 
-    public UpdateDueDateCommand(Task task, LocalDateTime newDueDate, TaskRepository taskRepository) {
+    public UpdateDueDateCommand(Task task, LocalDate newDueDate, TaskRepository taskRepository) {
         this.task = task;
         this.newDueDate = newDueDate;
         this.taskRepository = taskRepository;
@@ -32,12 +30,7 @@ public class UpdateDueDateCommand implements Command {
             throw new IllegalStateException("Task repository cannot be null");
         }
 
-        // Convert LocalDateTime to Date for compatibility with the Task class
-        Date dueDate = newDueDate != null
-            ? Date.from(newDueDate.atZone(ZoneId.systemDefault()).toInstant())
-            : null;
-
-        task.setDueDate(dueDate);
+        task.setDueDate(newDueDate);
         taskRepository.updateTask(task);
     }
 
@@ -50,11 +43,11 @@ public class UpdateDueDateCommand implements Command {
         this.task = task;
     }
 
-    public LocalDateTime getNewDueDate() {
+    public LocalDate getNewDueDate() {
         return newDueDate;
     }
 
-    public void setNewDueDate(LocalDateTime newDueDate) {
+    public void setNewDueDate(LocalDate newDueDate) {
         this.newDueDate = newDueDate;
     }
 

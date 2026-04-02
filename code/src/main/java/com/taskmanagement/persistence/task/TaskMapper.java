@@ -6,10 +6,11 @@ import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.RecurrenceType;
 import com.taskmanagement.enums.Status;
 
+import java.time.LocalDate;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,12 +48,12 @@ public class TaskMapper {
         // Map dates
         Timestamp creationTimestamp = rs.getTimestamp("creation_date");
         if (creationTimestamp != null) {
-            task.setCreationDate(new Date(creationTimestamp.getTime()));
+            task.setCreationDate(new java.util.Date(creationTimestamp.getTime()));
         }
 
-        Timestamp dueTimestamp = rs.getTimestamp("due_date");
-        if (dueTimestamp != null) {
-            task.setDueDate(new Date(dueTimestamp.getTime()));
+        Date dueSqlDate = rs.getDate("due_date");
+        if (dueSqlDate != null) {
+            task.setDueDate(dueSqlDate.toLocalDate());
         }
 
         // Map recurrence if present
@@ -84,7 +85,7 @@ public class TaskMapper {
         values.put("status", task.getStatus() != null ? task.getStatus().toString() : Status.OPEN.toString());
         values.put("priority", task.getPriority() != null ? task.getPriority().toString() : null);
         values.put("creation_date", task.getCreationDate() != null ? new Timestamp(task.getCreationDate().getTime()) : new Timestamp(System.currentTimeMillis()));
-        values.put("due_date", task.getDueDate() != null ? new Timestamp(task.getDueDate().getTime()) : null);
+        values.put("due_date", toDueDateTimestamp(task.getDueDate()));
 
         // Map recurrence details
         if (task.getRecurrence() != null) {
@@ -109,7 +110,7 @@ public class TaskMapper {
             task.getTitle(),
             task.getDescription(),
             task.getCreationDate() != null ? new Timestamp(task.getCreationDate().getTime()) : new Timestamp(System.currentTimeMillis()),
-            task.getDueDate() != null ? new Timestamp(task.getDueDate().getTime()) : null,
+            toDueDateTimestamp(task.getDueDate()),
             task.getPriority() != null ? task.getPriority().toString() : null,
             task.getStatus() != null ? task.getStatus().toString() : Status.OPEN.toString(),
             task.getRecurrence() != null ? task.getRecurrence().getType().toString() : null,
@@ -126,12 +127,16 @@ public class TaskMapper {
         return new Object[]{
             task.getTitle(),
             task.getDescription(),
-            task.getDueDate() != null ? new Timestamp(task.getDueDate().getTime()) : null,
+            toDueDateTimestamp(task.getDueDate()),
             task.getPriority() != null ? task.getPriority().toString() : null,
             task.getStatus() != null ? task.getStatus().toString() : Status.OPEN.toString(),
             task.getRecurrence() != null ? task.getRecurrence().getType().toString() : null,
             task.getRecurrence() != null ? task.getRecurrence().getInterval() : null,
             task.getId()
         };
+    }
+
+    private Date toDueDateTimestamp(LocalDate dueDate) {
+        return dueDate != null ? Date.valueOf(dueDate) : null;
     }
 }

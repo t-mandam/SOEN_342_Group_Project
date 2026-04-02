@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    due_date TIMESTAMP,
+    due_date DATE,
     priority VARCHAR(20),
     status VARCHAR(20) NOT NULL DEFAULT 'OPEN',
     recurrence_type VARCHAR(20),

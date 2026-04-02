@@ -1,6 +1,7 @@
 package com.taskmanagement.persistence.activity;
 
 import com.taskmanagement.observer.Activity;
+import com.taskmanagement.util.SimpleIdGenerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,7 +56,7 @@ public class ActivityMapper {
      */
     public Object[] getInsertValues(Activity activity) {
         return new Object[]{
-            java.util.UUID.randomUUID().toString(),
+            SimpleIdGenerator.nextId(),
             activity.getTimestamp() != null ? new Timestamp(activity.getTimestamp().getTime()) : new Timestamp(System.currentTimeMillis()),
             activity.getDescription()
         };

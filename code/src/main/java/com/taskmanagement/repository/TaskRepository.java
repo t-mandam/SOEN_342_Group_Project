@@ -25,4 +25,11 @@ public interface TaskRepository {
      * @return list of all tasks
      */
     List<Task> findAll();
+
+    /**
+     * Finds a task by its ID
+     * @param id the task ID
+     * @return the task if found, null otherwise
+     */
+    Task findById(String id);
 }

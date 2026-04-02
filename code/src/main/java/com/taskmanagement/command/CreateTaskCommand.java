@@ -10,6 +10,7 @@ import com.taskmanagement.repository.TaskCatalog;
 public class CreateTaskCommand implements Command {
     private TaskFactory taskFactory;
     private String title;
+    private String description;
     private Task createdTask;
 
     public CreateTaskCommand() {
@@ -22,6 +23,11 @@ public class CreateTaskCommand implements Command {
         this.title = title;
     }
 
+    public CreateTaskCommand(String title, String description) {
+        this(title);
+        this.description = description;
+    }
+
     @Override
     public void execute() {
         if (title == null || title.trim().isEmpty()) {
@@ -29,7 +35,16 @@ public class CreateTaskCommand implements Command {
         }
 
         this.createdTask = taskFactory.createTask(title);
+        
+        if (description != null && !description.trim().isEmpty()) {
+            createdTask.setDescription(description);
+        }
+        
         System.out.println("Task created: " + createdTask.getTitle());
+        if (description != null && !description.trim().isEmpty()) {
+            System.out.println("Description: " + createdTask.getDescription());
+        }
+        System.out.println("Task ID: " + createdTask.getId());
     }
 
     /**
@@ -54,6 +69,22 @@ public class CreateTaskCommand implements Command {
      */
     public String getTitle() {
         return title;
+    }
+
+    /**
+     * Sets the description for the task to be created
+     * @param description the task description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Gets the description
+     * @return the task description
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**

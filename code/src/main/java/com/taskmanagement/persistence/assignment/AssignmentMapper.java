@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.taskmanagement.util.SimpleIdGenerator;
+
 /**
  * Maps Assignment domain objects to/from database rows
  * Assignments represent the many-to-many relationship between Tasks and Collaborators
@@ -33,7 +35,7 @@ public class AssignmentMapper {
      */
     public Object[] getInsertValues(String taskId, String collaboratorId) {
         return new Object[]{
-            java.util.UUID.randomUUID().toString(),
+            SimpleIdGenerator.nextId(),
             taskId,
             collaboratorId
         };

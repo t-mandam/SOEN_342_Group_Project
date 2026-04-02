@@ -3,6 +3,7 @@ package com.taskmanagement.persistence.tag;
 import com.taskmanagement.persistence.DatabaseConnection;
 
 import com.taskmanagement.domain.Tag;
+import com.taskmanagement.util.SimpleIdGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +37,7 @@ public class TagTableDataGateway {
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, java.util.UUID.randomUUID().toString());
+            stmt.setString(1, SimpleIdGenerator.nextId());
             stmt.setString(2, tag.getName());
             stmt.executeUpdate();
         }

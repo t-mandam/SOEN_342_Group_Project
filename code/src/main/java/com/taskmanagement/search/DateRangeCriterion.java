@@ -2,18 +2,18 @@ package com.taskmanagement.search;
 
 import com.taskmanagement.domain.Task;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Search criterion that matches tasks with due dates within a specified range
  */
 public class DateRangeCriterion implements SearchCriterion {
-    private Date fromDate;
-    private Date toDate;
+    private LocalDate fromDate;
+    private LocalDate toDate;
 
     public DateRangeCriterion() {}
 
-    public DateRangeCriterion(Date fromDate, Date toDate) {
+    public DateRangeCriterion(LocalDate fromDate, LocalDate toDate) {
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
@@ -24,29 +24,29 @@ public class DateRangeCriterion implements SearchCriterion {
             return false;
         }
 
-        Date dueDate = task.getDueDate();
+        LocalDate dueDate = task.getDueDate();
 
         // Check if due date is within the range
-        boolean afterFromDate = (fromDate == null) || (!dueDate.before(fromDate));
-        boolean beforeToDate = (toDate == null) || (!dueDate.after(toDate));
+        boolean afterFromDate = (fromDate == null) || (!dueDate.isBefore(fromDate));
+        boolean beforeToDate = (toDate == null) || (!dueDate.isAfter(toDate));
 
         return afterFromDate && beforeToDate;
     }
 
     // Getters and setters
-    public Date getFromDate() {
+    public LocalDate getFromDate() {
         return fromDate;
     }
 
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
-    public Date getToDate() {
+    public LocalDate getToDate() {
         return toDate;
     }
 
-    public void setToDate(Date toDate) {
+    public void setToDate(LocalDate toDate) {
         this.toDate = toDate;
     }
 }

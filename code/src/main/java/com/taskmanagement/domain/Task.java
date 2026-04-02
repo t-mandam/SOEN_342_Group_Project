@@ -4,6 +4,7 @@ import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.Status;
 import com.taskmanagement.observer.TaskObserver;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,7 +17,7 @@ public class Task {
     protected String title;
     protected String description;
     protected Date creationDate;
-    protected Date dueDate;
+    protected LocalDate dueDate;
     protected Priority priority;
     protected Status status;
     protected List<Tag> tags;
@@ -113,11 +114,11 @@ public class Task {
         this.creationDate = creationDate;
     }
 
-    public Date getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
         notifyObservers();
     }

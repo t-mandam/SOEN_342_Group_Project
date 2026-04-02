@@ -2,10 +2,10 @@ package com.taskmanagement.command;
 
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.repository.TaskRepository;
+import com.taskmanagement.util.SimpleIdGenerator;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Command to import tasks from an external source
@@ -45,7 +45,7 @@ public class ImportCommand implements Command {
 
             for (Task task : tasks) {
                 if (task.getId() == null || task.getId().trim().isEmpty()) {
-                    task.setId(UUID.randomUUID().toString());
+                    task.setId(SimpleIdGenerator.nextId());
                 }
                 taskRepository.addTask(task);
             }

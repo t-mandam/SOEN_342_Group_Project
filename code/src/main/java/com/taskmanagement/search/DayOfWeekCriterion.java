@@ -2,8 +2,7 @@ package com.taskmanagement.search;
 
 import com.taskmanagement.domain.Task;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Search criterion that matches tasks with due dates on a specific day of the week
@@ -28,12 +27,13 @@ public class DayOfWeekCriterion implements SearchCriterion {
             return false;
         }
 
-        Date dueDate = task.getDueDate();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(dueDate);
-
-        int taskDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        LocalDate dueDate = task.getDueDate();
+        int taskDayOfWeek = toCalendarDayOfWeek(dueDate.getDayOfWeek().getValue());
         return taskDayOfWeek == day;
+    }
+
+    private int toCalendarDayOfWeek(int isoDayOfWeek) {
+        return isoDayOfWeek == 7 ? 1 : isoDayOfWeek + 1;
     }
 
     // Getters and setters
@@ -48,11 +48,11 @@ public class DayOfWeekCriterion implements SearchCriterion {
     /**
      * Convenience methods for setting day of week
      */
-    public void setSunday() { this.day = Calendar.SUNDAY; }
-    public void setMonday() { this.day = Calendar.MONDAY; }
-    public void setTuesday() { this.day = Calendar.TUESDAY; }
-    public void setWednesday() { this.day = Calendar.WEDNESDAY; }
-    public void setThursday() { this.day = Calendar.THURSDAY; }
-    public void setFriday() { this.day = Calendar.FRIDAY; }
-    public void setSaturday() { this.day = Calendar.SATURDAY; }
+    public void setSunday() { this.day = 1; }
+    public void setMonday() { this.day = 2; }
+    public void setTuesday() { this.day = 3; }
+    public void setWednesday() { this.day = 4; }
+    public void setThursday() { this.day = 5; }
+    public void setFriday() { this.day = 6; }
+    public void setSaturday() { this.day = 7; }
 }

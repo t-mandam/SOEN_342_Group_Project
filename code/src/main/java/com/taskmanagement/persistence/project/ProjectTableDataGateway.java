@@ -3,6 +3,7 @@ package com.taskmanagement.persistence.project;
 import com.taskmanagement.persistence.DatabaseConnection;
 
 import com.taskmanagement.domain.Project;
+import com.taskmanagement.util.SimpleIdGenerator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ public class ProjectTableDataGateway {
      */
     public String insert(Project project) throws SQLException {
         String sql = "INSERT INTO projects (id, name, description) VALUES (?, ?, ?)";
-        String id = java.util.UUID.randomUUID().toString();
+        String id = SimpleIdGenerator.nextId();
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

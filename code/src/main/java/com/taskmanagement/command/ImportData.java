@@ -5,6 +5,7 @@ import com.taskmanagement.domain.Task;
 import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.Status;
 
+import java.time.LocalDate;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,7 +19,8 @@ import java.util.List;
  * Handles reading task data from a CSV source.
  */
 public class ImportData {
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DUE_DATE_FORMAT = "yyyy-MM-dd";
 
     public List<Task> readTasksFromCsv(String importSource) throws IOException {
         List<Task> tasks = new ArrayList<>();
@@ -71,8 +73,8 @@ public class ImportData {
         task.setId(emptyToNull(columns.get(0)));
         task.setTitle(emptyToNull(columns.get(1)));
         task.setDescription(emptyToNull(columns.get(2)));
-        task.setCreationDate(parseDate(columns.get(3)));
-        task.setDueDate(parseDate(columns.get(4)));
+        task.setCreationDate(parseDateTime(columns.get(3)));
+        task.setDueDate(parseDueDate(columns.get(4)));
         task.setPriority(parsePriority(columns.get(5)));
         task.setStatus(parseStatus(columns.get(6)));
         task.setTags(parseTags(columns.get(7)));
@@ -107,16 +109,29 @@ public class ImportData {
         return values;
     }
 
-    private Date parseDate(String value) {
+    private Date parseDateTime(String value) {
         String cleaned = emptyToNull(value);
         if (cleaned == null) {
             return null;
         }
 
         try {
-            return new SimpleDateFormat(DATE_FORMAT).parse(cleaned);
+            return new SimpleDateFormat(DATE_TIME_FORMAT).parse(cleaned);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid date format: " + cleaned + ". Expected " + DATE_FORMAT, e);
+            throw new IllegalArgumentException("Invalid datetime format: " + cleaned + ". Expected " + DATE_TIME_FORMAT, e);
+        }
+    }
+
+    private LocalDate parseDueDate(String value) {
+        String cleaned = emptyToNull(value);
+        if (cleaned == null) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(cleaned);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid due date format: " + cleaned + ". Expected " + DUE_DATE_FORMAT, e);
         }
     }
 
