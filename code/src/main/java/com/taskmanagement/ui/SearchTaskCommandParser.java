@@ -2,11 +2,13 @@ package com.taskmanagement.ui;
 
 import com.taskmanagement.command.Command;
 import com.taskmanagement.domain.Task;
+import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.Status;
 import com.taskmanagement.repository.TaskCatalog;
 import com.taskmanagement.search.DateRangeCriterion;
 import com.taskmanagement.search.DayOfWeekCriterion;
 import com.taskmanagement.search.KeywordCriterion;
+import com.taskmanagement.search.PriorityCriterion;
 import com.taskmanagement.search.SearchCommand;
 import com.taskmanagement.search.SearchCriterion;
 import com.taskmanagement.search.StatusCriterion;
@@ -79,6 +81,14 @@ public class SearchTaskCommandParser {
                     return new StatusCriterion(Status.valueOf(modeArgs.toUpperCase()));
                 } catch (IllegalArgumentException ex) {
                     throw new IllegalArgumentException("Invalid status. Valid values: OPEN, COMPLETED, CANCELLED");
+                }
+
+            case "priority":
+                requireArgs(modeArgs, "priority");
+                try {
+                    return new PriorityCriterion(Priority.valueOf(modeArgs.toUpperCase()));
+                } catch (IllegalArgumentException ex) {
+                    throw new IllegalArgumentException("Invalid priority. Valid values: LOW, MEDIUM, HIGH");
                 }
 
             case "date":
@@ -224,6 +234,7 @@ public class SearchTaskCommandParser {
             "  keyword <text>\n" +
             "  tag <tag-name>\n" +
             "  status <OPEN|COMPLETED|CANCELLED>\n" +
+            "  priority <LOW|MEDIUM|HIGH>\n" +
             "  date <yyyy-MM-dd>\n" +
             "  date-range <from-yyyy-MM-dd> <to-yyyy-MM-dd>\n" +
             "  weekday <1-7|sun|mon|...|sat>\n" +

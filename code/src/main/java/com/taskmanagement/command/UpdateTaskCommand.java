@@ -4,6 +4,8 @@ import com.taskmanagement.domain.Tag;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.Status;
+import com.taskmanagement.repository.TagCatalog;
+import com.taskmanagement.repository.TagRepository;
 import com.taskmanagement.repository.TaskCatalog;
 import com.taskmanagement.repository.TaskRepository;
 
@@ -14,6 +16,7 @@ import java.time.LocalDate;
  */
 public class UpdateTaskCommand implements Command {
     private final TaskRepository taskRepository = TaskCatalog.getInstance();
+    private final TagRepository tagRepository = TagCatalog.getInstance();
     private final String taskId;
     private final String field;
     private final String value;
@@ -76,13 +79,13 @@ public class UpdateTaskCommand implements Command {
             case "add-tag":
             case "tag-add":
                 requireValue(field, value);
-                task.addTag(new Tag(value));
+                task.addTag(resolveExistingTag(value));
                 break;
 
             case "remove-tag":
             case "tag-remove":
                 requireValue(field, value);
-                task.removeTag(new Tag(value));
+                task.removeTag(resolveExistingTag(value));
                 break;
 
             case "complete":
@@ -116,5 +119,13 @@ public class UpdateTaskCommand implements Command {
         } catch (Exception ex) {
             throw new IllegalArgumentException("Invalid due date format. Use format: yyyy-MM-dd (example: 2026-04-02)");
         }
+    }
+
+    private Tag resolveExistingTag(String tagName) {
+        Tag tag = tagRepository.findByName(tagName);
+        if (tag == null) {
+            throw new IllegalArgumentException("Tag not found: '" + tagName + "'. Create it first using create-tag.");
+        }
+        return tag;
     }
 }

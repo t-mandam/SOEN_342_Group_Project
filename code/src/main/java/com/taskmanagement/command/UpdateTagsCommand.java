@@ -2,6 +2,8 @@ package com.taskmanagement.command;
 
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.domain.Tag;
+import com.taskmanagement.repository.TagCatalog;
+import com.taskmanagement.repository.TagRepository;
 import com.taskmanagement.repository.TaskRepository;
 
 /**
@@ -11,13 +13,21 @@ public class UpdateTagsCommand implements Command {
     private Task task;
     private Tag tag;
     private TaskRepository taskRepository;
+    private TagRepository tagRepository;
 
-    public UpdateTagsCommand() {}
+    public UpdateTagsCommand() {
+        this.tagRepository = TagCatalog.getInstance();
+    }
 
     public UpdateTagsCommand(Task task, Tag tag, TaskRepository taskRepository) {
+        this(task, tag, taskRepository, TagCatalog.getInstance());
+    }
+
+    public UpdateTagsCommand(Task task, Tag tag, TaskRepository taskRepository, TagRepository tagRepository) {
         this.task = task;
         this.tag = tag;
         this.taskRepository = taskRepository;
+        this.tagRepository = tagRepository;
     }
 
     @Override
@@ -30,6 +40,12 @@ public class UpdateTagsCommand implements Command {
         }
         if (taskRepository == null) {
             throw new IllegalStateException("Task repository cannot be null");
+        }
+        if (tagRepository == null) {
+            throw new IllegalStateException("Tag repository cannot be null");
+        }
+        if (tagRepository.findByName(tag.getName()) == null) {
+            throw new IllegalArgumentException("Tag not found: '" + tag.getName() + "'. Create it first using create-tag.");
         }
 
         // Default behavior is to add the tag
@@ -83,5 +99,13 @@ public class UpdateTagsCommand implements Command {
 
     public void setTaskRepository(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+    }
+
+    public TagRepository getTagRepository() {
+        return tagRepository;
+    }
+
+    public void setTagRepository(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
     }
 }

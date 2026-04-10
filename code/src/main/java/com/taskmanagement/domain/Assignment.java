@@ -1,60 +1,41 @@
 package com.taskmanagement.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Represents an assignment that connects tasks with collaborators
+ * Represents a single assignment between one task and one collaborator.
  */
 public class Assignment {
-    private List<Task> tasks;
-    private List<Collaborator> collaborators;
+    private Task task;
+    private Collaborator collaborator;
 
     public Assignment() {
-        this.tasks = new ArrayList<>();
-        this.collaborators = new ArrayList<>();
     }
 
-    // Methods for managing tasks
-    public void addTask(Task task) {
-        if (!this.tasks.contains(task)) {
-            this.tasks.add(task);
-        }
+    public Assignment(Task task, Collaborator collaborator) {
+        this.task = task;
+        this.collaborator = collaborator;
     }
 
-    public void removeTask(Task task) {
-        this.tasks.remove(task);
+    public Task getTask() {
+        return task;
     }
 
-    public List<Task> getTasks() {
-        return tasks;
+    public void setTask(Task task) {
+        this.task = task;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
+    public Collaborator getCollaborator() {
+        return collaborator;
     }
 
-    // Methods for managing collaborators
-    public void addCollaborator(Collaborator collaborator) {
-        if (!this.collaborators.contains(collaborator)) {
-            this.collaborators.add(collaborator);
-        }
+    public void setCollaborator(Collaborator collaborator) {
+        this.collaborator = collaborator;
     }
 
-    public void removeCollaborator(Collaborator collaborator) {
-        this.collaborators.remove(collaborator);
-    }
-
-    public List<Collaborator> getCollaborators() {
-        return collaborators;
-    }
-
-    public void setCollaborators(List<Collaborator> collaborators) {
-        this.collaborators = collaborators;
-    }
-
-    // Check if a specific task-collaborator assignment exists
+    // Checks if this assignment matches the given task and collaborator pair.
     public boolean hasAssignment(Task task, Collaborator collaborator) {
-        return tasks.contains(task) && collaborators.contains(collaborator);
+        return this.task != null
+                && this.collaborator != null
+                && this.task.equals(task)
+                && this.collaborator.equals(collaborator);
     }
 }

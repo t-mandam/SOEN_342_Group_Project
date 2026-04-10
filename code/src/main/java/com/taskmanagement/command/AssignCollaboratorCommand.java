@@ -32,8 +32,8 @@ public class AssignCollaboratorCommand implements Command {
             throw new IllegalStateException("Collaborator cannot be null");
         }
 
-        assignment.addTask(task);
-        assignment.addCollaborator(collaborator);
+        assignment.setTask(task);
+        assignment.setCollaborator(collaborator);
     }
 
     // Getters and setters
