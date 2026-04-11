@@ -3,6 +3,7 @@ package com.taskmanagement.persistence;
 import com.taskmanagement.domain.Assignment;
 import com.taskmanagement.domain.Collaborator;
 import com.taskmanagement.domain.Project;
+import com.taskmanagement.domain.Subtask;
 import com.taskmanagement.domain.Tag;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.persistence.assignment.AssignmentMapper;
@@ -106,6 +107,7 @@ public class AppPersistenceManager {
             Map<String, Task> tasksById = loadTasks(taskCatalog);
             Map<String, Collaborator> collaboratorsById = loadCollaborators(collaboratorCatalog);
 
+            linkSubtasks(tasksById);
             loadTags(tagCatalog);
             linkTasksToProjects(projectsById, tasksById);
             linkTaskTags(tagCatalog, tasksById);
@@ -231,6 +233,27 @@ public class AppPersistenceManager {
                 if (canonicalTask != null) {
                     entry.getValue().addTask(canonicalTask);
                 }
+            }
+        }
+    }
+
+    private void linkSubtasks(Map<String, Task> tasksById) {
+        for (Task task : tasksById.values()) {
+            if (!(task instanceof Subtask)) {
+                continue;
+            }
+
+            Subtask subtask = (Subtask) task;
+            if (subtask.getParentTask() == null || subtask.getParentTask().getId() == null) {
+                continue;
+            }
+
+            String parentId = subtask.getParentTask().getId().trim();
+            Task canonicalParent = tasksById.get(parentId);
+            if (canonicalParent != null) {
+                canonicalParent.addSubtask(subtask);
+            } else {
+                subtask.setParentTask(null);
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.taskmanagement.persistence.task;
 
 import com.taskmanagement.domain.Recurrence;
+import com.taskmanagement.domain.Subtask;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.RecurrenceType;
@@ -27,7 +28,8 @@ public class TaskMapper {
      * @throws SQLException if database access fails
      */
     public Task mapRowToTask(ResultSet rs) throws SQLException {
-        Task task = new Task();
+        String parentTaskId = rs.getString("parent_task_id");
+        Task task = parentTaskId == null || parentTaskId.trim().isEmpty() ? new Task() : new Subtask();
 
         task.setId(rs.getString("id"));
         task.setTitle(rs.getString("title"));
@@ -63,6 +65,12 @@ public class TaskMapper {
             recurrence.setType(RecurrenceType.valueOf(recurrenceTypeStr));
             recurrence.setInterval(rs.getInt("recurrence_interval"));
             task.setRecurrence(recurrence);
+        }
+
+        if (task instanceof Subtask && parentTaskId != null && !parentTaskId.trim().isEmpty()) {
+            Task parentReference = new Task();
+            parentReference.setId(parentTaskId.trim());
+            ((Subtask) task).setParentTask(parentReference);
         }
 
         // Note: project_id is not set here - manage through Project entity
@@ -114,7 +122,8 @@ public class TaskMapper {
             task.getPriority() != null ? task.getPriority().toString() : null,
             task.getStatus() != null ? task.getStatus().toString() : Status.OPEN.toString(),
             task.getRecurrence() != null ? task.getRecurrence().getType().toString() : null,
-            task.getRecurrence() != null ? task.getRecurrence().getInterval() : null
+            task.getRecurrence() != null ? task.getRecurrence().getInterval() : null,
+            getParentTaskId(task)
         };
     }
 
@@ -132,8 +141,23 @@ public class TaskMapper {
             task.getStatus() != null ? task.getStatus().toString() : Status.OPEN.toString(),
             task.getRecurrence() != null ? task.getRecurrence().getType().toString() : null,
             task.getRecurrence() != null ? task.getRecurrence().getInterval() : null,
+            getParentTaskId(task),
             task.getId()
         };
+    }
+
+    private String getParentTaskId(Task task) {
+        if (!(task instanceof Subtask)) {
+            return null;
+        }
+
+        Subtask subtask = (Subtask) task;
+        if (subtask.getParentTask() == null || subtask.getParentTask().getId() == null) {
+            return null;
+        }
+
+        String parentId = subtask.getParentTask().getId().trim();
+        return parentId.isEmpty() ? null : parentId;
     }
 
     private Date toDueDateTimestamp(LocalDate dueDate) {

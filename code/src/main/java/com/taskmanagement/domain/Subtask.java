@@ -16,7 +16,7 @@ public class Subtask extends Task {
 
     public Subtask(String title, Task parentTask) {
         super(title);
-        this.parentTask = parentTask;
+        this.setParentTask(parentTask);
     }
 
     // Getters and setters
@@ -25,6 +25,19 @@ public class Subtask extends Task {
     }
 
     public void setParentTask(Task parentTask) {
+        if (this.parentTask == parentTask) {
+            return;
+        }
+
+        Task previousParent = this.parentTask;
         this.parentTask = parentTask;
+
+        if (previousParent != null && previousParent.getSubtasks() != null) {
+            previousParent.getSubtasks().remove(this);
+        }
+
+        if (parentTask != null && parentTask.getSubtasks() != null && !parentTask.getSubtasks().contains(this)) {
+            parentTask.getSubtasks().add(this);
+        }
     }
 }

@@ -21,11 +21,13 @@ public class Task {
     protected Priority priority;
     protected Status status;
     protected Project project;
+    protected List<Subtask> subtasks;
     protected List<Tag> tags;
     protected Recurrence recurrence;
     protected List<TaskObserver> observers;
 
     public Task() {
+        this.subtasks = new ArrayList<>();
         this.tags = new ArrayList<>();
         this.observers = new ArrayList<>();
         this.creationDate = new Date();
@@ -153,6 +155,49 @@ public class Task {
 
     public List<Tag> getTags() {
         return tags;
+    }
+
+    public List<Subtask> getSubtasks() {
+        return subtasks;
+    }
+
+    public void setSubtasks(List<Subtask> subtasks) {
+        this.subtasks = subtasks == null ? new ArrayList<>() : new ArrayList<>(subtasks);
+
+        for (Subtask subtask : this.subtasks) {
+            if (subtask != null && subtask.getParentTask() != this) {
+                subtask.setParentTask(this);
+            }
+        }
+
+        notifyObservers();
+    }
+
+    public void addSubtask(Subtask subtask) {
+        if (subtask == null) {
+            return;
+        }
+
+        if (!this.subtasks.contains(subtask)) {
+            this.subtasks.add(subtask);
+        }
+
+        if (subtask.getParentTask() != this) {
+            subtask.setParentTask(this);
+        }
+
+        notifyObservers();
+    }
+
+    public void removeSubtask(Subtask subtask) {
+        if (subtask == null) {
+            return;
+        }
+
+        if (this.subtasks.remove(subtask) && subtask.getParentTask() == this) {
+            subtask.setParentTask(null);
+            notifyObservers();
+        }
     }
 
     public void setTags(List<Tag> tags) {

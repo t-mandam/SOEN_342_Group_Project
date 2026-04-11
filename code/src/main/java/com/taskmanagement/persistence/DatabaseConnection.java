@@ -45,6 +45,9 @@ public class DatabaseConnection {
             // Initialize schema if tables don't exist
             initializeSchema();
 
+            // Apply forward-only migrations for existing databases
+            applyMigrations();
+
             System.out.println("Database connection established at: " + new File(DB_URL.replace("jdbc:sqlite:", "")).getAbsolutePath());
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("SQLite JDBC driver not found. Add org.xerial:sqlite-jdbc to dependencies.", e);
@@ -131,6 +134,28 @@ public class DatabaseConnection {
                     statement.execute(trimmedSql);
                 }
             }
+        }
+    }
+
+    private void applyMigrations() throws SQLException {
+        addColumnIfMissing("tasks", "parent_task_id", "VARCHAR(36)");
+    }
+
+    private void addColumnIfMissing(String tableName, String columnName, String columnDefinition) throws SQLException {
+        String sql = "PRAGMA table_info(" + tableName + ")";
+
+        try (Statement statement = connection.createStatement();
+             java.sql.ResultSet rs = statement.executeQuery(sql)) {
+            while (rs.next()) {
+                String existingColumn = rs.getString("name");
+                if (existingColumn != null && existingColumn.equalsIgnoreCase(columnName)) {
+                    return;
+                }
+            }
+        }
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnDefinition);
         }
     }
 

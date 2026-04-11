@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     recurrence_type VARCHAR(20),
     recurrence_interval INTEGER,
     project_id VARCHAR(36),
+    parent_task_id VARCHAR(36),
+    FOREIGN KEY (parent_task_id) REFERENCES tasks(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
 );
 

@@ -30,8 +30,8 @@ public class TaskTableDataGateway {
      * @throws SQLException if database operation fails
      */
     public void insert(Task task) throws SQLException {
-        String sql = "INSERT INTO tasks (id, title, description, creation_date, due_date, priority, status, recurrence_type, recurrence_interval) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tasks (id, title, description, creation_date, due_date, priority, status, recurrence_type, recurrence_interval, parent_task_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -52,7 +52,7 @@ public class TaskTableDataGateway {
      */
     public void update(Task task) throws SQLException {
         String sql = "UPDATE tasks SET title = ?, description = ?, due_date = ?, priority = ?, status = ?, " +
-                     "recurrence_type = ?, recurrence_interval = ? WHERE id = ?";
+                     "recurrence_type = ?, recurrence_interval = ?, parent_task_id = ? WHERE id = ?";
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

@@ -1,29 +1,25 @@
 package com.taskmanagement.command;
 
-import com.taskmanagement.domain.Tag;
+import com.taskmanagement.domain.Project;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.Status;
 
-import java.time.LocalDate;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Handles reading task data from a CSV source.
  */
 public class ImportData {
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String DUE_DATE_FORMAT = "yyyy-MM-dd";
 
-    public List<Task> readTasksFromCsv(String importSource) throws IOException {
-        List<Task> tasks = new ArrayList<>();
+    public List<ImportedTaskData> readTasksFromCsv(String importSource) throws IOException {
+        List<ImportedTaskData> tasks = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(importSource))) {
             String line = reader.readLine();
@@ -34,9 +30,9 @@ public class ImportData {
             }
 
             if (!looksLikeHeader(line)) {
-                Task task = parseTask(line);
-                if (task != null) {
-                    tasks.add(task);
+                ImportedTaskData taskData = parseTask(line);
+                if (taskData != null) {
+                    tasks.add(taskData);
                 }
             }
 
@@ -45,9 +41,9 @@ public class ImportData {
                     continue;
                 }
 
-                Task task = parseTask(line);
-                if (task != null) {
-                    tasks.add(task);
+                ImportedTaskData taskData = parseTask(line);
+                if (taskData != null) {
+                    tasks.add(taskData);
                 }
             }
         }
@@ -57,29 +53,36 @@ public class ImportData {
 
     private boolean looksLikeHeader(String line) {
         String normalized = line.toLowerCase();
-        return normalized.contains("title") || normalized.contains("description") || normalized.contains("priority");
+        return normalized.contains("taskname") || normalized.contains("description") || normalized.contains("projectname");
     }
 
-    private Task parseTask(String line) {
+    private ImportedTaskData parseTask(String line) {
         List<String> columns = parseCsvLine(line);
 
         // Expected:
-        // 0=id, 1=title, 2=description, 3=creationDate, 4=dueDate, 5=priority, 6=status, 7=tags
-        if (columns.size() < 8) {
-            throw new IllegalArgumentException("Invalid CSV row. Expected 8 columns but got " + columns.size());
+        // 0=TaskName, 1=Description, 2=Subtask, 3=Status, 4=Priority, 5=DueDate,
+        // 6=ProjectName, 7=ProjectDescription, 8=Collaborator, 9=CollaboratorCategory
+        if (columns.size() < 10) {
+            throw new IllegalArgumentException("Invalid CSV row. Expected 10 columns but got " + columns.size());
         }
 
         Task task = new Task();
-        task.setId(emptyToNull(columns.get(0)));
-        task.setTitle(emptyToNull(columns.get(1)));
-        task.setDescription(emptyToNull(columns.get(2)));
-        task.setCreationDate(parseDateTime(columns.get(3)));
-        task.setDueDate(parseDueDate(columns.get(4)));
-        task.setPriority(parsePriority(columns.get(5)));
-        task.setStatus(parseStatus(columns.get(6)));
-        task.setTags(parseTags(columns.get(7)));
+        task.setTitle(emptyToNull(columns.get(0)));
+        task.setDescription(emptyToNull(columns.get(1)));
+        task.setStatus(parseStatus(columns.get(3)));
+        task.setPriority(parsePriority(columns.get(4)));
+        task.setDueDate(parseDueDate(columns.get(5)));
 
-        return task;
+        String projectName = emptyToNull(columns.get(6));
+        if (projectName != null) {
+            task.setProject(new Project(projectName, emptyToNull(columns.get(7))));
+        }
+
+        String subtaskTitle = emptyToNull(columns.get(2));
+        String collaboratorName = emptyToNull(columns.get(8));
+        String collaboratorCategory = emptyToNull(columns.get(9));
+
+        return new ImportedTaskData(task, subtaskTitle, collaboratorName, collaboratorCategory);
     }
 
     private List<String> parseCsvLine(String line) {
@@ -109,20 +112,7 @@ public class ImportData {
         return values;
     }
 
-    private Date parseDateTime(String value) {
-        String cleaned = emptyToNull(value);
-        if (cleaned == null) {
-            return null;
-        }
-
-        try {
-            return new SimpleDateFormat(DATE_TIME_FORMAT).parse(cleaned);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid datetime format: " + cleaned + ". Expected " + DATE_TIME_FORMAT, e);
-        }
-    }
-
-    private LocalDate parseDueDate(String value) {
+    private java.time.LocalDate parseDueDate(String value) {
         String cleaned = emptyToNull(value);
         if (cleaned == null) {
             return null;
@@ -151,30 +141,41 @@ public class ImportData {
         return Status.valueOf(cleaned.trim().toUpperCase());
     }
 
-    private List<Tag> parseTags(String value) {
-        List<Tag> tags = new ArrayList<>();
-        String cleaned = emptyToNull(value);
-
-        if (cleaned == null) {
-            return tags;
-        }
-
-        String[] split = cleaned.split("\\|");
-        for (String tagName : split) {
-            String trimmed = tagName.trim();
-            if (!trimmed.isEmpty()) {
-                tags.add(new Tag(trimmed));
-            }
-        }
-
-        return tags;
-    }
-
     private String emptyToNull(String value) {
         if (value == null) {
             return null;
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    public static class ImportedTaskData {
+        private final Task task;
+        private final String subtaskTitle;
+        private final String collaboratorName;
+        private final String collaboratorCategory;
+
+        public ImportedTaskData(Task task, String subtaskTitle, String collaboratorName, String collaboratorCategory) {
+            this.task = task;
+            this.subtaskTitle = subtaskTitle;
+            this.collaboratorName = collaboratorName;
+            this.collaboratorCategory = collaboratorCategory;
+        }
+
+        public Task getTask() {
+            return task;
+        }
+
+        public String getSubtaskTitle() {
+            return subtaskTitle;
+        }
+
+        public String getCollaboratorName() {
+            return collaboratorName;
+        }
+
+        public String getCollaboratorCategory() {
+            return collaboratorCategory;
+        }
     }
 }
