@@ -20,6 +20,7 @@ public class Task {
     protected LocalDate dueDate;
     protected Priority priority;
     protected Status status;
+    protected Project project;
     protected List<Tag> tags;
     protected Recurrence recurrence;
     protected List<TaskObserver> observers;
@@ -138,6 +139,15 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+        notifyObservers();
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
         notifyObservers();
     }
 

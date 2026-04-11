@@ -160,6 +160,7 @@ public class TaskFactory {
 
         Subtask subtask = new Subtask(title.trim(), parentTask);
         subtask.setId(generateUniqueId());
+        subtask.setProject(parentTask.getProject());
 
         // Add to repository if available
         if (taskRepository != null) {

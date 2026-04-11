@@ -55,7 +55,7 @@ public class AddTaskToProjectCommand implements Command {
             throw new IllegalArgumentException("Project not found: '" + projectName + "'");
         }
 
-        Project existingProject = findProjectContainingTask(task.getId());
+        Project existingProject = findProjectContainingTask(task);
         if (existingProject != null) {
             if (existingProject.getName() != null
                 && existingProject.getName().trim().equalsIgnoreCase(project.getName().trim())) {
@@ -82,12 +82,22 @@ public class AddTaskToProjectCommand implements Command {
         System.out.println("Task '" + task.getId() + "' added to project '" + project.getName() + "'.");
     }
 
-    private Project findProjectContainingTask(String taskId) {
-        if (taskId == null || taskId.trim().isEmpty()) {
+    private Project findProjectContainingTask(Task task) {
+        if (task == null) {
             return null;
         }
 
-        String normalizedTaskId = taskId.trim();
+        if (task.getProject() != null) {
+            Project attachedProject = projectRepository.findByName(task.getProject().getName());
+            return attachedProject != null ? attachedProject : task.getProject();
+        }
+
+        String normalizedTaskId = task.getId();
+        if (normalizedTaskId == null || normalizedTaskId.trim().isEmpty()) {
+            return null;
+        }
+
+        normalizedTaskId = normalizedTaskId.trim();
         for (Project candidate : projectRepository.findAll()) {
             if (candidate == null || candidate.getTasks() == null) {
                 continue;

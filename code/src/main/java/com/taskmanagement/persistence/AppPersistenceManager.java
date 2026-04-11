@@ -350,7 +350,7 @@ public class AppPersistenceManager {
                 taskGateway.update(task);
             }
 
-            String projectId = findProjectIdForTask(taskId);
+            String projectId = findProjectIdForTask(task);
             if (projectId != null) {
                 taskGateway.assignToProject(taskId, projectId);
             } else {
@@ -442,26 +442,16 @@ public class AppPersistenceManager {
         }
     }
 
-    private String findProjectIdForTask(String taskId) {
-        if (taskId == null || taskId.trim().isEmpty()) {
+    private String findProjectIdForTask(Task task) {
+        if (task == null || task.getProject() == null || task.getProject().getName() == null) {
             return null;
         }
 
-        String normalizedTaskId = taskId.trim();
-        for (Project project : ProjectCatalog.getInstance().findAll()) {
-            if (project == null || project.getName() == null || project.getTasks() == null) {
-                continue;
-            }
-
-            for (Task projectTask : project.getTasks()) {
-                if (projectTask != null
-                        && projectTask.getId() != null
-                        && projectTask.getId().trim().equals(normalizedTaskId)) {
-                    return projectIdsByName.get(project.getName().trim().toLowerCase());
-                }
-            }
+        String projectName = task.getProject().getName().trim();
+        if (projectName.isEmpty()) {
+            return null;
         }
 
-        return null;
+        return projectIdsByName.get(projectName.toLowerCase());
     }
 }

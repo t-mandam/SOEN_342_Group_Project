@@ -109,7 +109,7 @@ public class AssignCollaboratorCommand implements Command {
             );
         }
 
-        if (!isTaskInAnyProject(task.getId())) {
+        if (!isTaskInAnyProject(task)) {
             throw new IllegalArgumentException(
                 "Task '" + task.getId() + "' cannot be assigned because it is not part of any project"
             );
@@ -136,7 +136,7 @@ public class AssignCollaboratorCommand implements Command {
 
         assignmentRepository.addAssignment(new Assignment(task, collaborator));
 
-        Project owningProject = findProjectByTaskId(task.getId());
+        Project owningProject = findProjectByTask(task);
         if (owningProject != null) {
             owningProject.addCollaborator(collaborator);
             projectRepository.updateProject(owningProject);
@@ -183,7 +183,16 @@ public class AssignCollaboratorCommand implements Command {
         return Integer.MAX_VALUE;
     }
 
-    private boolean isTaskInAnyProject(String taskId) {
+    private boolean isTaskInAnyProject(Task task) {
+        if (task == null) {
+            return false;
+        }
+
+        if (task.getProject() != null) {
+            return true;
+        }
+
+        String taskId = task.getId();
         if (taskId == null || taskId.trim().isEmpty()) {
             return false;
         }
@@ -206,7 +215,17 @@ public class AssignCollaboratorCommand implements Command {
         return false;
     }
 
-    private Project findProjectByTaskId(String taskId) {
+    private Project findProjectByTask(Task task) {
+        if (task == null) {
+            return null;
+        }
+
+        if (task.getProject() != null) {
+            Project attachedProject = projectRepository.findByName(task.getProject().getName());
+            return attachedProject != null ? attachedProject : task.getProject();
+        }
+
+        String taskId = task.getId();
         if (taskId == null || taskId.trim().isEmpty()) {
             return null;
         }

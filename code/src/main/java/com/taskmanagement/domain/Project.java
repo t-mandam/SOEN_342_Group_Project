@@ -45,17 +45,49 @@ public class Project {
     }
 
     public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
+        if (this.tasks != null) {
+            for (Task task : this.tasks) {
+                if (task != null && sameProject(task.getProject(), this)) {
+                    task.setProject(null);
+                }
+            }
+        }
 
-    public void addTask(Task task) {
-        if (!this.tasks.contains(task)) {
-            this.tasks.add(task);
+        this.tasks = tasks;
+
+        if (this.tasks != null) {
+            for (Task task : this.tasks) {
+                if (task != null) {
+                    task.setProject(this);
+                }
+            }
         }
     }
 
+    public void addTask(Task task) {
+        if (task == null) {
+            return;
+        }
+
+        if (task.getProject() != null && !sameProject(task.getProject(), this)) {
+            throw new IllegalArgumentException("Task '" + task.getId() + "' is already part of project '" + task.getProject().getName() + "'");
+        }
+
+        if (!this.tasks.contains(task)) {
+            this.tasks.add(task);
+        }
+
+        task.setProject(this);
+    }
+
     public void removeTask(Task task) {
-        this.tasks.remove(task);
+        if (task == null) {
+            return;
+        }
+
+        if (this.tasks.remove(task) && sameProject(task.getProject(), this)) {
+            task.setProject(null);
+        }
     }
 
     public List<Collaborator> getCollaborators() {
@@ -74,5 +106,17 @@ public class Project {
 
     public void removeCollaborator(Collaborator collaborator) {
         this.collaborators.remove(collaborator);
+    }
+
+    private boolean sameProject(Project first, Project second) {
+        if (first == null || second == null) {
+            return false;
+        }
+
+        if (first.getName() == null || second.getName() == null) {
+            return false;
+        }
+
+        return first.getName().trim().equalsIgnoreCase(second.getName().trim());
     }
 }
