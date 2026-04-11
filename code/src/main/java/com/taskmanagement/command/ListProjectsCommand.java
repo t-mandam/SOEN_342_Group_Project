@@ -1,29 +1,44 @@
 package com.taskmanagement.command;
 
+import com.taskmanagement.domain.Assignment;
 import com.taskmanagement.domain.Project;
+import com.taskmanagement.domain.Task;
+import com.taskmanagement.repository.AssignmentCatalog;
+import com.taskmanagement.repository.AssignmentRepository;
 import com.taskmanagement.repository.ProjectCatalog;
 import com.taskmanagement.repository.ProjectRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Command to list all projects.
  */
 public class ListProjectsCommand implements Command {
     private final ProjectRepository projectRepository;
+    private final AssignmentRepository assignmentRepository;
 
     public ListProjectsCommand() {
-        this(ProjectCatalog.getInstance());
+        this(ProjectCatalog.getInstance(), AssignmentCatalog.getInstance());
     }
 
     public ListProjectsCommand(ProjectRepository projectRepository) {
+        this(projectRepository, AssignmentCatalog.getInstance());
+    }
+
+    public ListProjectsCommand(ProjectRepository projectRepository, AssignmentRepository assignmentRepository) {
         this.projectRepository = projectRepository;
+        this.assignmentRepository = assignmentRepository;
     }
 
     @Override
     public void execute() {
         if (projectRepository == null) {
             throw new IllegalStateException("Project repository cannot be null");
+        }
+        if (assignmentRepository == null) {
+            throw new IllegalStateException("Assignment repository cannot be null");
         }
 
         List<Project> projects = projectRepository.findAll();
@@ -57,7 +72,7 @@ public class ListProjectsCommand implements Command {
             String name = safe(project.getName());
             String description = safe(project.getDescription());
             int tasksCount = project.getTasks() == null ? 0 : project.getTasks().size();
-            int collaboratorsCount = project.getCollaborators() == null ? 0 : project.getCollaborators().size();
+            int collaboratorsCount = countUniqueCollaboratorsForProject(project);
 
             System.out.println("| " + pad(name, nameWidth)
                     + " | " + pad(description, descriptionWidth)
@@ -67,6 +82,31 @@ public class ListProjectsCommand implements Command {
         }
 
         System.out.println(divider);
+    }
+
+    private int countUniqueCollaboratorsForProject(Project project) {
+        if (project == null || project.getTasks() == null || project.getTasks().isEmpty()) {
+            return 0;
+        }
+
+        Set<String> collaboratorNames = new HashSet<>();
+        for (Task task : project.getTasks()) {
+            if (task == null || task.getId() == null || task.getId().trim().isEmpty()) {
+                continue;
+            }
+
+            List<Assignment> assignments = assignmentRepository.findByTaskId(task.getId().trim());
+            for (Assignment assignment : assignments) {
+                if (assignment != null
+                        && assignment.getCollaborator() != null
+                        && assignment.getCollaborator().getName() != null
+                        && !assignment.getCollaborator().getName().trim().isEmpty()) {
+                    collaboratorNames.add(assignment.getCollaborator().getName().trim().toLowerCase());
+                }
+            }
+        }
+
+        return collaboratorNames.size();
     }
 
     private String safe(String value) {

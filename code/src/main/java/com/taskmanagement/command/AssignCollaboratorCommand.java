@@ -135,6 +135,13 @@ public class AssignCollaboratorCommand implements Command {
         System.out.println("Created linked subtask: " + linkedSubtask.getTitle() + " (ID: " + linkedSubtask.getId() + ")");
 
         assignmentRepository.addAssignment(new Assignment(task, collaborator));
+
+        Project owningProject = findProjectByTaskId(task.getId());
+        if (owningProject != null) {
+            owningProject.addCollaborator(collaborator);
+            projectRepository.updateProject(owningProject);
+        }
+
         System.out.println("Assigned collaborator '" + collaborator.getName() + "' to task '" + task.getId() + "'.");
     }
 
@@ -197,6 +204,29 @@ public class AssignCollaboratorCommand implements Command {
         }
 
         return false;
+    }
+
+    private Project findProjectByTaskId(String taskId) {
+        if (taskId == null || taskId.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalizedTaskId = taskId.trim();
+        for (Project project : projectRepository.findAll()) {
+            if (project == null || project.getTasks() == null) {
+                continue;
+            }
+
+            for (Task projectTask : project.getTasks()) {
+                if (projectTask != null
+                        && projectTask.getId() != null
+                        && projectTask.getId().trim().equals(normalizedTaskId)) {
+                    return project;
+                }
+            }
+        }
+
+        return null;
     }
 
     public AssignmentRepository getAssignmentRepository() {
