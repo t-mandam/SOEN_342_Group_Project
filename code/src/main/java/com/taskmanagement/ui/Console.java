@@ -15,6 +15,7 @@ public class Console {
     private final CreateCollaboratorCommandParser createCollaboratorCommandParser;
     private final AssignCollaboratorCommandParser assignCollaboratorCommandParser;
     private final ListCollaboratorsCommandParser listCollaboratorsCommandParser;
+    private final ListAssignmentsCommandParser listAssignmentsCommandParser;
     private final ImportCommandParser importCommandParser;
     private final UpdateTaskCommandParser updateTaskCommandParser;
     private final SearchTaskCommandParser searchTaskCommandParser;
@@ -33,6 +34,7 @@ public class Console {
         this.createCollaboratorCommandParser = new CreateCollaboratorCommandParser();
         this.assignCollaboratorCommandParser = new AssignCollaboratorCommandParser();
         this.listCollaboratorsCommandParser = new ListCollaboratorsCommandParser();
+        this.listAssignmentsCommandParser = new ListAssignmentsCommandParser();
         this.importCommandParser = new ImportCommandParser();
         this.updateTaskCommandParser = new UpdateTaskCommandParser();
         this.searchTaskCommandParser = new SearchTaskCommandParser();
@@ -128,6 +130,10 @@ public class Console {
                     command = parseListCollaborators(args);
                     break;
 
+                case "list-assignments":
+                    command = parseListAssignments(args);
+                    break;
+
                 case "search-task":
                     command = parseSearchTask(args);
                     break;
@@ -197,6 +203,10 @@ public class Console {
 
     private Command parseListCollaborators(String args) {
         return listCollaboratorsCommandParser.parse(args);
+    }
+
+    private Command parseListAssignments(String args) {
+        return listAssignmentsCommandParser.parse(args);
     }
 
     private Command parseImport(String args) {

@@ -17,6 +17,7 @@ import com.taskmanagement.search.TagCriterion;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -25,11 +26,14 @@ import java.util.List;
 public class SearchTaskCommandParser {
 
     public Command parse(String args) {
-        String normalizedArgs = (args == null || args.trim().isEmpty()) ? "status OPEN" : args;
+        boolean hasArgs = args != null && !args.trim().isEmpty();
+        String normalizedArgs = hasArgs ? args : "";
 
         SearchCommand searchCommand = new SearchCommand(TaskCatalog.getInstance());
-        for (SearchCriterion criterion : parseCriteria(normalizedArgs)) {
-            searchCommand.addCriterion(criterion);
+        if (hasArgs) {
+            for (SearchCriterion criterion : parseCriteria(normalizedArgs)) {
+                searchCommand.addCriterion(criterion);
+            }
         }
 
         return new Command() {
@@ -37,6 +41,12 @@ public class SearchTaskCommandParser {
             public void execute() {
                 searchCommand.execute();
                 List<Task> results = searchCommand.getSearchResults();
+                if (!hasArgs) {
+                    results.sort(Comparator
+                            .comparing(Task::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                            .thenComparing(task -> safe(task.getTitle()), String.CASE_INSENSITIVE_ORDER)
+                            .thenComparing(task -> safe(task.getId()), String.CASE_INSENSITIVE_ORDER));
+                }
                 printResults(results);
             }
         };
@@ -229,7 +239,7 @@ public class SearchTaskCommandParser {
 
     private String getUsage() {
         return "Usage: search-task [<mode> <args> [| <mode> <args> ...]]\n" +
-            "No args: defaults to status OPEN\n" +
+            "No args: lists all tasks sorted by due date (ascending)\n" +
             "Modes:\n" +
             "  keyword <text>\n" +
             "  tag <tag-name>\n" +

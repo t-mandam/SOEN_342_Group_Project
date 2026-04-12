@@ -45,52 +45,14 @@ public class ImportCommand implements Command {
         this.taskFactory = new TaskFactory(this.taskRepository);
     }
 
-    public ImportCommand(TaskRepository taskRepository, String importSource) {
-        this.taskRepository = taskRepository;
+    public ImportCommand(String importSource) {
+        this();
         this.importSource = importSource;
-        this.importData = new ImportData();
-        this.taskFactory = new TaskFactory(taskRepository);
     }
 
-    public ImportCommand(TaskRepository taskRepository, ProjectRepository projectRepository, String importSource) {
-        this(taskRepository, importSource);
-        this.projectRepository = projectRepository;
-    }
-
-    public ImportCommand(TaskRepository taskRepository,
-                         ProjectRepository projectRepository,
-                         CollaboratorRepository collaboratorRepository,
-                         AssignmentRepository assignmentRepository,
-                         String importSource) {
-        this(taskRepository, projectRepository, importSource);
-        this.collaboratorRepository = collaboratorRepository;
-        this.assignmentRepository = assignmentRepository;
-    }
-
-    public ImportCommand(TaskRepository taskRepository, String importSource, ImportData importData) {
-        this.taskRepository = taskRepository;
-        this.importSource = importSource;
+    public ImportCommand(String importSource, ImportData importData) {
+        this(importSource);
         this.importData = importData != null ? importData : new ImportData();
-        this.taskFactory = new TaskFactory(taskRepository);
-    }
-
-    public ImportCommand(TaskRepository taskRepository,
-                         ProjectRepository projectRepository,
-                         String importSource,
-                         ImportData importData) {
-        this(taskRepository, importSource, importData);
-        this.projectRepository = projectRepository;
-    }
-
-    public ImportCommand(TaskRepository taskRepository,
-                         ProjectRepository projectRepository,
-                         CollaboratorRepository collaboratorRepository,
-                         AssignmentRepository assignmentRepository,
-                         String importSource,
-                         ImportData importData) {
-        this(taskRepository, projectRepository, importSource, importData);
-        this.collaboratorRepository = collaboratorRepository;
-        this.assignmentRepository = assignmentRepository;
     }
 
     @Override

@@ -18,6 +18,7 @@ public final class HelpPrinter {
         System.out.println("create-collaborator");
         System.out.println("assign-collaborator");
         System.out.println("list-collaborators");
+        System.out.println("list-assignments");
         System.out.println("import");
         System.out.println("update-task");
         System.out.println("search-task");
@@ -90,9 +91,14 @@ public final class HelpPrinter {
                 System.out.println("Lists all saved collaborators.");
                 break;
 
+            case "list-assignments":
+                System.out.println("list-assignments");
+                System.out.println("Lists all task-collaborator assignments.");
+                break;
+
             case "search-task":
                 System.out.println("search-task <mode> <args> [| <mode> <args> ...]");
-                System.out.println("No args: defaults to status OPEN");
+                System.out.println("No args: lists all tasks sorted by due date (ascending)");
                 System.out.println("Modes:");
                 System.out.println("  keyword <text>");
                 System.out.println("  tag <tag-name>");
