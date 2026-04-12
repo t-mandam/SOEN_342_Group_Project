@@ -1,5 +1,10 @@
 package com.taskmanagement.command;
 
+import com.taskmanagement.domain.Assignment;
+import com.taskmanagement.domain.Collaborator;
+import com.taskmanagement.domain.Intermediate;
+import com.taskmanagement.domain.Junior;
+import com.taskmanagement.domain.Senior;
 import com.taskmanagement.domain.Tag;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.enums.Priority;
@@ -8,12 +13,15 @@ import com.taskmanagement.observer.Activity;
 import com.taskmanagement.observer.ActivityRecorder;
 import com.taskmanagement.persistence.DatabaseConnection;
 import com.taskmanagement.persistence.activity.DatabaseActivityRecorder;
+import com.taskmanagement.repository.AssignmentCatalog;
+import com.taskmanagement.repository.AssignmentRepository;
 import com.taskmanagement.repository.TagCatalog;
 import com.taskmanagement.repository.TagRepository;
 import com.taskmanagement.repository.TaskCatalog;
 import com.taskmanagement.repository.TaskRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Command that updates a task by ID and field name.
@@ -22,6 +30,7 @@ public class UpdateTaskCommand implements Command {
     private static final int MAX_OPEN_WITHOUT_DUE_DATE = 50;
     private final TaskRepository taskRepository;
     private final TagRepository tagRepository;
+    private final AssignmentRepository assignmentRepository;
     private final ActivityRecorder activityRecorder;
     private final String taskId;
     private final String field;
@@ -33,6 +42,7 @@ public class UpdateTaskCommand implements Command {
                 value,
                 TaskCatalog.getInstance(),
                 TagCatalog.getInstance(),
+                AssignmentCatalog.getInstance(),
                 new DatabaseActivityRecorder(DatabaseConnection.getInstance()));
     }
 
@@ -41,12 +51,14 @@ public class UpdateTaskCommand implements Command {
                              String value,
                              TaskRepository taskRepository,
                              TagRepository tagRepository,
+                             AssignmentRepository assignmentRepository,
                              ActivityRecorder activityRecorder) {
         this.taskId = taskId;
         this.field = field;
         this.value = value;
         this.taskRepository = taskRepository;
         this.tagRepository = tagRepository;
+        this.assignmentRepository = assignmentRepository;
         this.activityRecorder = activityRecorder;
     }
 
@@ -63,6 +75,9 @@ public class UpdateTaskCommand implements Command {
         }
         if (tagRepository == null) {
             throw new IllegalStateException("Tag repository cannot be null");
+        }
+        if (assignmentRepository == null) {
+            throw new IllegalStateException("Assignment repository cannot be null");
         }
         if (activityRecorder == null) {
             throw new IllegalStateException("Activity recorder cannot be null");
@@ -112,9 +127,11 @@ public class UpdateTaskCommand implements Command {
 
             case "status":
                 requireValue(field, value);
-                ensureOpenWithoutDueDateLimitForStatusChange(task, Status.valueOf(value.toUpperCase()));
+                Status targetStatus = Status.valueOf(value.toUpperCase());
+                ensureOpenWithoutDueDateLimitForStatusChange(task, targetStatus);
+                ensureCollaboratorCapacityForOpening(task, targetStatus);
                 Status oldStatus = task.getStatus();
-                task.setStatus(Status.valueOf(value.toUpperCase()));
+                task.setStatus(targetStatus);
                 return "Task " + task.getId() + " status updated from '" + safe(oldStatus) + "' to '" + safe(task.getStatus()) + "'";
 
             case "add-tag":
@@ -147,6 +164,7 @@ public class UpdateTaskCommand implements Command {
 
             case "reopen":
                 ensureOpenWithoutDueDateLimitForStatusChange(task, Status.OPEN);
+                ensureCollaboratorCapacityForOpening(task, Status.OPEN);
                 boolean reopened = task.reopenTask();
                 if (reopened) {
                     return "Task " + task.getId() + " reopened to OPEN";
@@ -220,5 +238,62 @@ public class UpdateTaskCommand implements Command {
 
     private boolean qualifiesForOpenWithoutDueDate(Status status, LocalDate dueDate) {
         return status == Status.OPEN && dueDate == null;
+    }
+
+    private void ensureCollaboratorCapacityForOpening(Task task, Status newStatus) {
+        if (task == null || task.getId() == null || task.getId().trim().isEmpty()) {
+            return;
+        }
+        if (newStatus != Status.OPEN || task.getStatus() == Status.OPEN) {
+            return;
+        }
+
+        List<Assignment> taskAssignments = assignmentRepository.findByTaskId(task.getId().trim());
+        for (Assignment assignment : taskAssignments) {
+            if (assignment == null || assignment.getCollaborator() == null) {
+                continue;
+            }
+
+            Collaborator collaborator = assignment.getCollaborator();
+            String collaboratorName = collaborator.getName();
+            if (collaboratorName == null || collaboratorName.trim().isEmpty()) {
+                continue;
+            }
+
+            int currentOpenTasks = countOpenAssignmentsForCollaborator(collaboratorName.trim());
+            int maxOpenTasks = getMaxOpenTasks(collaborator);
+            if (currentOpenTasks >= maxOpenTasks) {
+                throw new IllegalStateException(
+                        "Collaborator '" + collaboratorName + "' cannot exceed open task limit (" + maxOpenTasks + ")."
+                );
+            }
+        }
+    }
+
+    private int countOpenAssignmentsForCollaborator(String collaboratorName) {
+        int count = 0;
+        List<Assignment> assignments = assignmentRepository.findByCollaboratorName(collaboratorName);
+        for (Assignment assignment : assignments) {
+            if (assignment != null
+                    && assignment.getTask() != null
+                    && assignment.getTask().getStatus() == Status.OPEN) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int getMaxOpenTasks(Collaborator collaborator) {
+        if (collaborator instanceof Junior) {
+            return ((Junior) collaborator).getMaxOpenTasks();
+        }
+        if (collaborator instanceof Intermediate) {
+            return ((Intermediate) collaborator).getMaxOpenTasks();
+        }
+        if (collaborator instanceof Senior) {
+            return ((Senior) collaborator).getMaxOpenTasks();
+        }
+
+        return Integer.MAX_VALUE;
     }
 }
