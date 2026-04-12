@@ -19,6 +19,7 @@ import java.time.LocalDate;
  * Command that updates a task by ID and field name.
  */
 public class UpdateTaskCommand implements Command {
+    private static final int MAX_OPEN_WITHOUT_DUE_DATE = 50;
     private final TaskRepository taskRepository;
     private final TagRepository tagRepository;
     private final ActivityRecorder activityRecorder;
@@ -111,6 +112,7 @@ public class UpdateTaskCommand implements Command {
 
             case "status":
                 requireValue(field, value);
+                ensureOpenWithoutDueDateLimitForStatusChange(task, Status.valueOf(value.toUpperCase()));
                 Status oldStatus = task.getStatus();
                 task.setStatus(Status.valueOf(value.toUpperCase()));
                 return "Task " + task.getId() + " status updated from '" + safe(oldStatus) + "' to '" + safe(task.getStatus()) + "'";
@@ -144,6 +146,7 @@ public class UpdateTaskCommand implements Command {
                 return "Task " + task.getId() + " cancel requested but task was already CANCELLED";
 
             case "reopen":
+                ensureOpenWithoutDueDateLimitForStatusChange(task, Status.OPEN);
                 boolean reopened = task.reopenTask();
                 if (reopened) {
                     return "Task " + task.getId() + " reopened to OPEN";
@@ -186,5 +189,36 @@ public class UpdateTaskCommand implements Command {
 
         String text = String.valueOf(value).trim();
         return text.isEmpty() ? "-" : text;
+    }
+
+    private void ensureOpenWithoutDueDateLimitForStatusChange(Task task, Status newStatus) {
+        if (task == null) {
+            return;
+        }
+
+        boolean oldQualifies = qualifiesForOpenWithoutDueDate(task.getStatus(), task.getDueDate());
+        boolean newQualifies = qualifiesForOpenWithoutDueDate(newStatus, task.getDueDate());
+
+        if (!newQualifies || oldQualifies == newQualifies) {
+            return;
+        }
+
+        int openWithoutDueDateCount = 0;
+        for (Task existingTask : taskRepository.findAll()) {
+            if (existingTask != null
+                    && qualifiesForOpenWithoutDueDate(existingTask.getStatus(), existingTask.getDueDate())) {
+                openWithoutDueDateCount++;
+            }
+        }
+
+        if (openWithoutDueDateCount >= MAX_OPEN_WITHOUT_DUE_DATE) {
+            throw new IllegalStateException(
+                    "The number of OPEN tasks without a due date cannot exceed " + MAX_OPEN_WITHOUT_DUE_DATE + "."
+            );
+        }
+    }
+
+    private boolean qualifiesForOpenWithoutDueDate(Status status, LocalDate dueDate) {
+        return status == Status.OPEN && dueDate == null;
     }
 }

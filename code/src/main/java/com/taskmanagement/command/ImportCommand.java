@@ -8,6 +8,7 @@ import com.taskmanagement.domain.Project;
 import com.taskmanagement.domain.Senior;
 import com.taskmanagement.domain.Subtask;
 import com.taskmanagement.domain.Task;
+import com.taskmanagement.enums.Status;
 import com.taskmanagement.factory.TaskFactory;
 import com.taskmanagement.observer.Activity;
 import com.taskmanagement.observer.ActivityRecorder;
@@ -32,6 +33,7 @@ import java.util.Objects;
  * Command to import tasks from an external source
  */
 public class ImportCommand implements Command {
+    private static final int MAX_OPEN_WITHOUT_DUE_DATE = 50;
     private TaskRepository taskRepository;
     private ProjectRepository projectRepository;
     private CollaboratorRepository collaboratorRepository;
@@ -95,10 +97,12 @@ public class ImportCommand implements Command {
                     projectRepository.updateProject(project);
                 }
 
+                ensureCanCreateOpenWithoutDueDate(task);
                 taskRepository.addTask(task);
                 recordActivity(task, "Task " + task.getId() + " created via import from '" + importSource + "'");
 
                 if (importedRow.getSubtaskTitle() != null && !importedRow.getSubtaskTitle().trim().isEmpty()) {
+                    ensureOpenWithoutDueDateCapacityForAnotherTask();
                     Subtask createdSubtask = taskFactory.createSubtask(task, importedRow.getSubtaskTitle().trim());
                     recordActivity(createdSubtask, "Subtask " + createdSubtask.getId() + " created via import under task " + task.getId());
                 }
@@ -430,5 +434,32 @@ public class ImportCommand implements Command {
         Activity activity = new Activity(description);
         activity.setTaskId(task.getId());
         activityRecorder.record(activity);
+    }
+
+    private void ensureCanCreateOpenWithoutDueDate(Task task) {
+        if (task == null) {
+            return;
+        }
+
+        if (task.getStatus() == Status.OPEN && task.getDueDate() == null) {
+            ensureOpenWithoutDueDateCapacityForAnotherTask();
+        }
+    }
+
+    private void ensureOpenWithoutDueDateCapacityForAnotherTask() {
+        int openWithoutDueDateCount = 0;
+        for (Task existingTask : taskRepository.findAll()) {
+            if (existingTask != null
+                    && existingTask.getStatus() == Status.OPEN
+                    && existingTask.getDueDate() == null) {
+                openWithoutDueDateCount++;
+            }
+        }
+
+        if (openWithoutDueDateCount >= MAX_OPEN_WITHOUT_DUE_DATE) {
+            throw new IllegalStateException(
+                    "The number of OPEN tasks without a due date cannot exceed " + MAX_OPEN_WITHOUT_DUE_DATE + "."
+            );
+        }
     }
 }

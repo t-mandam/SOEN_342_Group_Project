@@ -7,12 +7,14 @@ import com.taskmanagement.observer.Activity;
 import com.taskmanagement.observer.ActivityRecorder;
 import com.taskmanagement.persistence.DatabaseConnection;
 import com.taskmanagement.persistence.activity.DatabaseActivityRecorder;
+import com.taskmanagement.enums.Status;
 import com.taskmanagement.repository.TaskCatalog;
 
 /**
  * Command to create a subtask for an existing task
  */
 public class CreateSubtaskCommand implements Command {
+    private static final int MAX_OPEN_WITHOUT_DUE_DATE = 50;
     private TaskFactory taskFactory;
     private TaskCatalog taskCatalog;
     private ActivityRecorder activityRecorder;
@@ -44,6 +46,8 @@ public class CreateSubtaskCommand implements Command {
         if (activityRecorder == null) {
             throw new IllegalStateException("Activity recorder cannot be null");
         }
+
+        enforceOpenWithoutDueDateLimit();
 
         Task parentTask = taskCatalog.findById(parentTaskId);
         if (parentTask == null) {
@@ -123,5 +127,22 @@ public class CreateSubtaskCommand implements Command {
 
     public void setActivityRecorder(ActivityRecorder activityRecorder) {
         this.activityRecorder = activityRecorder;
+    }
+
+    private void enforceOpenWithoutDueDateLimit() {
+        int openWithoutDueDateCount = 0;
+        for (Task existingTask : taskCatalog.findAll()) {
+            if (existingTask != null
+                    && existingTask.getStatus() == Status.OPEN
+                    && existingTask.getDueDate() == null) {
+                openWithoutDueDateCount++;
+            }
+        }
+
+        if (openWithoutDueDateCount >= MAX_OPEN_WITHOUT_DUE_DATE) {
+            throw new IllegalStateException(
+                    "The number of OPEN tasks without a due date cannot exceed " + MAX_OPEN_WITHOUT_DUE_DATE + "."
+            );
+        }
     }
 }
