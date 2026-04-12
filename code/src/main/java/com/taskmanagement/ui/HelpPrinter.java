@@ -21,6 +21,7 @@ public final class HelpPrinter {
         System.out.println("list-assignments");
         System.out.println("import");
         System.out.println("export");
+        System.out.println("sort-task");
         System.out.println("update-task");
         System.out.println("search-task");
         System.out.println("help");
@@ -121,6 +122,12 @@ public final class HelpPrinter {
                 System.out.println("export <csv-file-path>");
                 System.out.println("Exports the latest search-task results in import CSV format.");
                 System.out.println("Run search-task first, then export.");
+                break;
+
+            case "sort-task":
+                System.out.println("sort-task <due-date|priority|status|project|tag>");
+                System.out.println("Sorts all tasks using the selected mode.");
+                System.out.println("Examples: sort-task due-date, sort-task priority");
                 break;
 
             case "help":

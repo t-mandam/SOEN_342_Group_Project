@@ -5,14 +5,7 @@ import com.taskmanagement.domain.Task;
 import com.taskmanagement.enums.Priority;
 import com.taskmanagement.enums.Status;
 import com.taskmanagement.repository.TaskCatalog;
-import com.taskmanagement.search.DateRangeCriterion;
-import com.taskmanagement.search.DayOfWeekCriterion;
-import com.taskmanagement.search.KeywordCriterion;
-import com.taskmanagement.search.PriorityCriterion;
-import com.taskmanagement.search.SearchCommand;
-import com.taskmanagement.search.SearchCriterion;
-import com.taskmanagement.search.StatusCriterion;
-import com.taskmanagement.search.TagCriterion;
+import com.taskmanagement.search.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;

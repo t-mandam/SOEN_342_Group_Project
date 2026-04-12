@@ -18,6 +18,7 @@ public class Console {
     private final ListAssignmentsCommandParser listAssignmentsCommandParser;
     private final ImportCommandParser importCommandParser;
     private final ExportCommandParser exportCommandParser;
+    private final SortTaskCommandParser sortTaskCommandParser;
     private final UpdateTaskCommandParser updateTaskCommandParser;
     private final SearchTaskCommandParser searchTaskCommandParser;
 
@@ -39,6 +40,7 @@ public class Console {
         this.importCommandParser = new ImportCommandParser();
         this.searchTaskCommandParser = new SearchTaskCommandParser();
         this.exportCommandParser = new ExportCommandParser(this.searchTaskCommandParser);
+        this.sortTaskCommandParser = new SortTaskCommandParser();
         this.updateTaskCommandParser = new UpdateTaskCommandParser();
     }
 
@@ -148,6 +150,10 @@ public class Console {
                     command = parseExport(args);
                     break;
 
+                case "sort-task":
+                    command = parseSortTask(args);
+                    break;
+
                 case "help":
                     HelpPrinter.printCommandHelp(args);
                     return;
@@ -221,6 +227,10 @@ public class Console {
 
     private Command parseExport(String args) {
         return exportCommandParser.parse(args);
+    }
+
+    private Command parseSortTask(String args) {
+        return sortTaskCommandParser.parse(args);
     }
 
     public void initialize() {
