@@ -13,6 +13,7 @@ import java.util.List;
  * Represents a task in the task management system
  */
 public class Task {
+    private static final int MAX_SUBTASKS = 20;
     protected String id;
     protected String title;
     protected String description;
@@ -162,6 +163,10 @@ public class Task {
     }
 
     public void setSubtasks(List<Subtask> subtasks) {
+        if (subtasks != null && subtasks.size() > MAX_SUBTASKS) {
+            throw new IllegalStateException("A task cannot have more than " + MAX_SUBTASKS + " subtasks.");
+        }
+
         this.subtasks = subtasks == null ? new ArrayList<>() : new ArrayList<>(subtasks);
 
         for (Subtask subtask : this.subtasks) {
@@ -176,6 +181,10 @@ public class Task {
     public void addSubtask(Subtask subtask) {
         if (subtask == null) {
             return;
+        }
+
+        if (!this.subtasks.contains(subtask) && this.subtasks.size() >= MAX_SUBTASKS) {
+            throw new IllegalStateException("A task cannot have more than " + MAX_SUBTASKS + " subtasks.");
         }
 
         if (!this.subtasks.contains(subtask)) {
