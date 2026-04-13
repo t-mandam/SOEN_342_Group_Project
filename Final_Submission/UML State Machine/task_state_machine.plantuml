@@ -1,0 +1,67 @@
+@startuml
+title Task and Subtask State Machine
+
+hide empty description
+
+state "Task" as TaskSM {
+  [*] --> TaskCreated : createTask()
+
+  state "Created" as TaskCreated
+  state "Open" as TaskOpen
+  state "Completed" as TaskCompleted
+  state "Cancelled" as TaskCancelled
+
+  TaskCreated : entry / initializeTask()
+  TaskCreated : exit / persistTask()
+
+  TaskOpen : entry / status = OPEN
+  TaskOpen : do / updateTask()
+  TaskOpen : exit / saveChanges()
+
+  TaskCompleted : entry / status = COMPLETED
+  TaskCompleted : exit / prepareReopen()
+
+  TaskCancelled : entry / status = CANCELLED
+  TaskCancelled : exit / prepareReopen()
+
+  TaskCreated --> TaskOpen : initialized
+  TaskOpen --> TaskCompleted : completeTask()
+  TaskOpen --> TaskCancelled : cancelTask()
+  TaskCompleted --> TaskOpen : reopenTask()
+  TaskCancelled --> TaskOpen : reopenTask()
+}
+
+state "Subtask" as SubtaskSM {
+  [*] --> SubtaskCreated : createSubtask(parentTask)
+
+  state "Created" as SubtaskCreated
+  state "Open" as SubtaskOpen
+  state "Completed" as SubtaskCompleted
+  state "Cancelled" as SubtaskCancelled
+
+  SubtaskCreated : entry / linkToParentTask()
+  SubtaskCreated : exit / persistSubtask()
+
+  SubtaskOpen : entry / status = OPEN
+  SubtaskOpen : do / updateSubtask()
+  SubtaskOpen : exit / saveChanges()
+
+  SubtaskCompleted : entry / status = COMPLETED
+  SubtaskCompleted : exit / prepareReopen()
+
+  SubtaskCancelled : entry / status = CANCELLED
+  SubtaskCancelled : exit / prepareReopen()
+
+  SubtaskCreated --> SubtaskOpen : initialized
+  SubtaskOpen --> SubtaskCompleted : completeTask()
+  SubtaskOpen --> SubtaskCancelled : cancelTask()
+  SubtaskCompleted --> SubtaskOpen : reopenTask()
+  SubtaskCancelled --> SubtaskOpen : reopenTask()
+}
+
+note right of SubtaskSM
+A subtask must belong
+to a parent task.
+end note
+
+@enduml
