@@ -3,6 +3,7 @@
 context Task
 inv MaxTwentySubtasks:
     self.subtasks->size() <= 20
+
 Through a method:
 
 public boolean hasValidSubtaskCount() {
@@ -17,6 +18,7 @@ inv MaxFiftyOpenTasksWithoutDueDate:
     Task.allInstances()
         ->select(t | t.status = Status::open and t.dueDate.oclIsUndefined())
         ->size() <= 50
+
 Through a method:
 
 public boolean hasValidOpenTasksWithoutDueDateLimit(List<Task> tasks) {
