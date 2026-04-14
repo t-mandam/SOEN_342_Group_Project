@@ -1,0 +1,58 @@
+@startuml
+title Class Diagram — Patterns
+
+class Task <<stub>>
+interface TaskRepository <<stub>>
+
+interface TaskObserver {
+  +update(task : Task)
+}
+class ActivityLog {
+  -updates : List<Activity>
+  +addActivity(activity : Activity)
+  +clearLog()
+  +getActivitiesCount() : int
+}
+class Activity {
+  -timestamp : Date
+  -taskID : String
+  -description : String
+}
+interface SortStrategy {
+  +sort(tasks : List<Task>) : List<Task>
+}
+class DueDateSort
+class PrioritySort
+class StatusSort
+class ProjectSort
+class TagSort
+class SortCommand {
+  -strategy : SortStrategy
+  +setStrategy(strategy : SortStrategy)
+  +sort(tasks : List<Task>)
+}
+class TaskFactory {
+  -taskRepository : TaskRepository
+  +createTask(title : String) : Task
+  +createRecurringTask(title : String, recurrence : Recurrence) : Task
+  +createRecurringTasks(title : String, recurrence : Recurrence, startDueDate : LocalDate, occurrences : int) : List<Task>
+  +createSubtask(parentTask : Task) : Subtask
+  +createSubtask(parentTask : Task, title : String) : Subtask
+}
+
+TaskObserver <|.. ActivityLog
+ActivityLog *-- Activity
+Task "1" --> "*" TaskObserver : notifies
+Task "1" *-- "1" ActivityLog
+
+SortStrategy <|.. DueDateSort
+SortStrategy <|.. PrioritySort
+SortStrategy <|.. StatusSort
+SortStrategy <|.. ProjectSort
+SortStrategy <|.. TagSort
+SortCommand --> SortStrategy
+SortCommand --> TaskRepository
+
+TaskFactory --> Task
+TaskFactory --> TaskRepository
+@enduml

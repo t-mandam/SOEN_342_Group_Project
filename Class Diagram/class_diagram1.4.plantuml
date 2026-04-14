@@ -1,0 +1,86 @@
+@startuml 
+title Class Diagram - Search & Infrastructure 
+
+class Task <<stub>>
+class Tag <<stub>>
+
+interface SearchCriterion {
+  +matches(task : Task) : boolean
+}
+
+class KeywordCriterion {
+  -keyword : String
+}
+
+class DateCriterion {
+  -date : Date
+}
+
+class DateRangeCriterion {
+  -fromDate : Date
+  -toDate : Date
+}
+
+class StatusCriterion {
+  -status : Status
+}
+
+class DayOfWeekCriterion {
+  -day : int
+}
+
+class TagCriterion {
+  -tag : Tag
+}
+
+class SearchCommand {
+  +search(repo : TaskRepository, criteria : List<SearchCriterion>) : List<Task>
+}
+interface TaskRepository {
+  +addTask(task : Task)
+  +updateTask(task : Task)
+  +findById(id : String) : Task
+  +findAll() : List<Task>
+}
+class TaskCatalog {
+  -taskCatalog : List<Task>
+}
+interface CollaboratorRepository {
+  +findAll() : List<Collaborator>
+  +findOverloadedCollaborators() : List<Collaborator>
+}
+class CollaboratorCatalog {
+  -collaboratorCatalog : List<Collaborator>
+}
+class ImportData {
+  +readTasksFromCsv(importSource : String) : List<ImportedTaskData>
+}
+class ImportedTaskData {
+  -task : Task
+  -subtaskTitle : String
+  -collaboratorName : String
+  -collaboratorCategory : String
+}
+ImportData +-- ImportedTaskData
+class ExportData {
+  +writeTasksToCsv(exportDestination : String, tasks : List<Task>)
+  +writeTasksToImportCsv(exportDestination : String, tasks : List<Task>, assignmentRepository : AssignmentRepository)
+}
+class ICalendarGateway
+class ICalendarExportData
+
+SearchCriterion <|.. KeywordCriterion
+SearchCriterion <|.. DateCriterion
+SearchCriterion <|.. DateRangeCriterion
+SearchCriterion <|.. StatusCriterion
+SearchCriterion <|.. DayOfWeekCriterion
+SearchCriterion <|.. TagCriterion
+TaskRepository <|.. TaskCatalog
+CollaboratorRepository <|.. CollaboratorCatalog
+TaskCatalog *-- Task
+CollaboratorCatalog *-- Collaborator
+SearchCommand --> TaskRepository
+SearchCommand --> SearchCriterion
+ICalendarGateway --> ICalendarExportData
+ExportData --> ICalendarGateway
+@enduml

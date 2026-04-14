@@ -1,0 +1,127 @@
+@startuml
+title Class Diagram — Full Diagram Overview
+
+left to right direction
+class Task
+class Subtask
+class Tag
+class Project
+class Recurrence
+abstract class Collaborator
+class Junior
+class Intermediate
+class Senior
+class Assignment
+interface TaskObserver
+class ActivityLog
+class Activity
+interface SortStrategy
+class DueDateSort
+class PrioritySort
+class StatusSort
+class ProjectSort
+class TagSort
+class SortCommand
+class TaskFactory
+interface TaskRepository
+class TaskCatalog
+interface CollaboratorRepository
+class CollaboratorCatalog
+interface Command
+class CreateTaskCommand
+class AssignCollaboratorCommand
+class ViewOverloadedCollaboratorsCommand
+class ImportCommand
+class ExportCommand
+class UpdateTitleCommand
+class UpdateDescriptionCommand
+class UpdateStatusCommand
+class UpdatePriorityCommand
+class UpdateDueDateCommand
+class UpdateTagsCommand
+class SearchCommand
+interface SearchCriterion
+class KeywordCriterion
+class DateCriterion
+class DateRangeCriterion
+class StatusCriterion
+class DayOfWeekCriterion
+class TagCriterion
+class Console
+class ImportData
+class ImportedTaskData
+class ExportData
+class ICalendarGateway
+class ICalendarExportData
+' Inheritance
+Task <|-- Subtask
+Collaborator <|-- Junior
+Collaborator <|-- Intermediate
+Collaborator <|-- Senior
+SortStrategy <|.. DueDateSort
+SortStrategy <|.. PrioritySort
+SortStrategy <|.. StatusSort
+SortStrategy <|.. ProjectSort
+SortStrategy <|.. TagSort
+TaskObserver <|.. ActivityLog
+TaskRepository <|.. TaskCatalog
+CollaboratorRepository <|.. CollaboratorCatalog
+Command <|.. CreateTaskCommand
+Command <|.. AssignCollaboratorCommand
+Command <|.. ViewOverloadedCollaboratorsCommand
+Command <|.. ImportCommand
+Command <|.. ExportCommand
+Command <|.. SortCommand
+Command <|.. SearchCommand
+Command <|.. UpdateTitleCommand
+Command <|.. UpdateDescriptionCommand
+Command <|.. UpdateStatusCommand
+Command <|.. UpdatePriorityCommand
+Command <|.. UpdateDueDateCommand
+Command <|.. UpdateTagsCommand
+SearchCriterion <|.. KeywordCriterion
+SearchCriterion <|.. DateCriterion
+SearchCriterion <|.. DateRangeCriterion
+SearchCriterion <|.. StatusCriterion
+SearchCriterion <|.. DayOfWeekCriterion
+SearchCriterion <|.. TagCriterion
+' Associations (keep your original multiplicities)
+Task "0..1" <-- "0..*" Task : parent
+Task "*" -- "*" Tag
+Project "*" -- "0..1" Task
+Task "*" -- "0..1" Recurrence
+Task "1" -- "*" Assignment
+Collaborator "1" -- "*" Assignment
+Project -- "*" Collaborator
+Task "1" --> "*" TaskObserver : notifies
+Task "1" *-- "1" ActivityLog
+ActivityLog *-- Activity
+SortCommand --> SortStrategy
+SortCommand --> TaskRepository
+TaskFactory --> Task
+TaskFactory --> TaskRepository
+TaskCatalog *-- Task
+CollaboratorCatalog *-- Collaborator
+CreateTaskCommand --> TaskFactory
+UpdateTitleCommand --> TaskRepository
+UpdateDescriptionCommand --> TaskRepository
+UpdateStatusCommand --> TaskRepository
+UpdatePriorityCommand --> TaskRepository
+UpdateDueDateCommand --> TaskRepository
+UpdateTagsCommand --> TaskRepository
+UpdateTagsCommand --> Tag
+AssignCollaboratorCommand --> Assignment
+AssignCollaboratorCommand --> CollaboratorRepository
+ViewOverloadedCollaboratorsCommand --> CollaboratorRepository
+ImportCommand --> TaskRepository
+ImportCommand --> CollaboratorRepository
+ImportCommand --> ImportData
+ImportData +-- ImportedTaskData
+ExportCommand --> SearchCommand
+ExportCommand --> ExportData
+ExportCommand --> ICalendarGateway
+ICalendarGateway --> ICalendarExportData
+SearchCommand --> TaskRepository
+SearchCommand --> SearchCriterion
+Console --> Command
+@enduml

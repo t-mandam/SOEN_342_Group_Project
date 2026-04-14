@@ -1,0 +1,97 @@
+@startuml
+title Class Diagram - Commands
+
+class Task <<stub>>
+class Tag <<stub>>
+interface TaskRepository <<stub>>
+class TaskFactory <<stub>>
+class Assignment <<stub>>
+interface CollaboratorRepository <<stub>>
+class ImportData <<stub>>
+class ExportData <<stub>>
+class ICalendarGateway <<stub>>
+class SearchCommand <<stub>>
+
+interface Command {
+  +execute()
+}
+class UpdateTitleCommand {
+  -task : Task
+  -newTitle : String
+  +execute()
+}
+class UpdateDescriptionCommand {
+  -task : Task
+  -newDescription : String
+  +execute()
+}
+class UpdateStatusCommand {
+  -task : Task
+  -newStatus : Status
+  -taskRepository : TaskRepository
+  +execute()
+  +completeTask()
+  +cancelTask()
+  +reopenTask()
+}
+class UpdatePriorityCommand {
+  -task : Task
+  -newPriority : Priority
+  +execute()
+}
+class UpdateDueDateCommand {
+  -task : Task
+  -newDueDate : Date
+  +execute()
+}
+class UpdateTagsCommand {
+  -task : Task
+  -tag : Tag
+  -taskRepository : TaskRepository
+  -tagRepository : TagRepository
+  +execute()
+  +addTag()
+  +removeTag()
+}
+class CreateTaskCommand
+class AssignCollaboratorCommand
+class ViewOverloadedCollaboratorsCommand
+class ImportCommand
+class ExportCommand
+class Console {
+  +executeCommand(command : Command)
+}
+
+Command <|.. UpdateTitleCommand
+Command <|.. UpdateDescriptionCommand
+Command <|.. UpdateStatusCommand
+Command <|.. UpdatePriorityCommand
+Command <|.. UpdateDueDateCommand
+Command <|.. UpdateTagsCommand
+Command <|.. CreateTaskCommand
+Command <|.. AssignCollaboratorCommand
+Command <|.. ViewOverloadedCollaboratorsCommand
+Command <|.. ImportCommand
+Command <|.. ExportCommand
+Command <|.. SearchCommand
+Command <|.. SortCommand
+
+UpdateTitleCommand --> TaskRepository
+UpdateDescriptionCommand --> TaskRepository
+UpdateStatusCommand --> TaskRepository
+UpdatePriorityCommand --> TaskRepository
+UpdateDueDateCommand --> TaskRepository
+UpdateTagsCommand --> TaskRepository
+UpdateTagsCommand --> Tag
+CreateTaskCommand --> TaskFactory
+AssignCollaboratorCommand --> Assignment
+AssignCollaboratorCommand --> CollaboratorRepository
+ViewOverloadedCollaboratorsCommand --> CollaboratorRepository
+ImportCommand --> TaskRepository
+ImportCommand --> CollaboratorRepository
+ImportCommand --> ImportData
+ExportCommand --> SearchCommand
+ExportCommand --> ExportData
+ExportCommand --> ICalendarGateway
+Console --> Command
+@enduml

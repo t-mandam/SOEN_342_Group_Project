@@ -1,0 +1,103 @@
+@startuml
+title Class Diagram — Core Domain
+
+class Task {
+  -id : String
+  -title : String
+  -description : String
+  -creationDate : Date
+  -dueDate : Date
+  -priority : Priority
+  -status : Status
+  -tags : List<Tag>
+  -recurrence : Recurrence
+  +completeTask() : boolean
+  +cancelTask() : boolean
+  +reopenTask() : boolean
+  +addTag(tag : Tag)
+  +removeTag(tag : Tag)
+}
+class Subtask {
+  -parentTask : Task
+}
+class Tag {
+  -name : String
+}
+class Recurrence {
+  -type : RecurrenceType
+  -interval : int
+  -startDate : Date
+  -endDate : Date
+  -weekDays : List<int>
+  -dayOfMonth : int
+}
+class Project {
+  -name : String
+  -description : String
+  -tasks : List<Task>
+  -collaborators : List<Collaborator>
+  +addTask(task : Task)
+  +removeTask(task : Task)
+  +addCollaborator(collaborator : Collaborator)
+  +removeCollaborator(collaborator : Collaborator)
+}
+abstract class Collaborator {
+  #name : String
+}
+class Junior {
+  {static} MAX_OPEN_TASKS : int = 10
+
+  +getMaxOpenTasks() : int
+  +canAcceptOpenTask(currentOpenTasks : int) : boolean
+}
+
+class Intermediate {
+  {static} MAX_OPEN_TASKS : int = 5
+
+  +getMaxOpenTasks() : int
+  +canAcceptOpenTask(currentOpenTasks : int) : boolean
+}
+
+class Senior {
+  {static} MAX_OPEN_TASKS : int = 2
+
+  +getMaxOpenTasks() : int
+  +canAcceptOpenTask(currentOpenTasks : int) : boolean
+}
+
+class Assignment {
+  -task : Task
+  -collaborator : Collaborator
+  +hasAssignment(task : Task, collaborator : Collaborator) : boolean
+}
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Status {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum RecurrenceType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  WEEK_DAY
+}
+
+Task <|-- Subtask
+Collaborator <|-- Junior
+Collaborator <|-- Intermediate
+Collaborator <|-- Senior
+Task "0..1" <-- "0..*" Task : parent
+Task "*" -- "*" Tag
+Project "*" -- "0..1" Task
+Task "*" -- "0..1" Recurrence
+Task "1" -- "*" Assignment
+Collaborator "1" -- "*" Assignment
+Project -- "*" Collaborator
+@enduml
