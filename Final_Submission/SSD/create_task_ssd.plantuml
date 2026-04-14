@@ -1,0 +1,40 @@
+@startuml
+title SSD - Create Task (Success + Failure) - Iteration 1 + 2
+
+actor User
+participant "Personal Task Management System" as PTMS
+
+== Create Task ==
+User -> PTMS: createTask(\n  title,\n  description,\n  priority,\n  dueDate,\n  project,\n  tags,\n  recurrencePattern,\n  recurrenceInterval,\n  recurrenceDays,\n  recurrenceStartDate,\n  recurrenceEndDate,\n  collaborators\n)
+
+alt Missing title / invalid required data
+    PTMS --> User: "Error: Invalid task data"
+
+else Invalid recurrence data
+    PTMS --> User: "Error: Invalid recurrence pattern or dates"
+
+else Collaborator overloaded
+    PTMS --> User: "Error: Collaborator task limit exceeded"
+
+else Task can be created
+    alt Non-recurring task
+        PTMS --> User: "Task created successfully"
+    else Recurring task
+        PTMS --> User: "Task created successfully with occurrences generated"
+    end
+
+    opt Project specified
+        PTMS --> User: "Project linked successfully"
+    end
+
+    opt Tags specified
+        PTMS --> User: "Tags linked successfully"
+    end
+
+    opt Collaborators specified
+        PTMS --> User: "Collaborators linked successfully"
+        PTMS --> User: "Subtasks created for collaborators"
+    end
+end
+
+@enduml
