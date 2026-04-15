@@ -28,6 +28,7 @@ public final class HelpPrinter {
         System.out.println("help");
         System.out.println();
         System.out.println("Type 'help <command-name>' to see command signature and details.");
+        System.out.println("You can use the numbered menu or type raw commands directly.");
         System.out.println();
     }
 
@@ -126,9 +127,11 @@ public final class HelpPrinter {
                 break;
 
             case "export":
-                System.out.println("export <csv-file-path>");
-                System.out.println("Exports the latest search-task results in import CSV format.");
-                System.out.println("Run search-task first, then export.");
+                System.out.println("export task <task-id> <file.ics>");
+                System.out.println("export project <project-name> <file.ics>");
+                System.out.println("export filtered <file.ics>");
+                System.out.println("Exports eligible tasks to iCalendar (.ics) format.");
+                System.out.println("Only tasks with a due date are exported.");
                 break;
 
             case "sort-task":
