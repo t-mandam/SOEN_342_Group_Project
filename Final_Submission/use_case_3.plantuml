@@ -1,0 +1,105 @@
+@startuml
+left to right direction
+actor User as u
+rectangle "Personal Task Management System" {
+   usecase "Manage Tasks" as mt
+     usecase "Create Task" as ctk
+       usecase "Add Recurrence" as addrecurr
+       addrecurr ..> ctk : extends
+     usecase "Create Subtask" as crtsub
+     usecase "Update Task" as ut
+       usecase "Complete Task" as cmpt
+       usecase "Cancel Task" as cclt
+       usecase "Reopen Task" as ropt
+       usecase "Change Title" as chgt
+       usecase "Change Description" as chgd
+       usecase "Change Priority" as chgp
+       usecase "Change Due Date" as cdd
+       usecase "Associate Tag" as asstg
+       usecase "Assign Task to Project" as attp2
+       usecase "Remove Task from Project" as rtfp2
+       cmpt ..> ut : extends
+       cclt ..> ut : extends
+       ropt ..> ut : extends
+       chgt ..> ut : extends
+       chgd ..> ut : extends
+       chgp ..> ut : extends
+       cdd ..> ut : extends
+       asstg ..> ut : extends
+       attp2 ..> ut : extends
+       rtfp2 ..> ut : extends
+     usecase "Create Tag" as ctg
+     mt ..> ctk : include
+     mt ..> crtsub : include
+     mt ..> ut : include
+     mt ..> ctg : include
+
+   usecase "Manage Projects" as mp
+     usecase "Create Project" as cp
+     usecase "Assign Task to Project" as attp
+     usecase "Remove Task from Project" as rtfp
+     mp ..> cp : include
+     mp ..> attp : include
+     mp ..> rtfp : include
+
+   usecase "View Tasks" as vt
+     usecase "Sort Tasks" as st
+       usecase "Sort by Due Date" as stbdd
+       usecase "Sort by Priority" as stbp
+       usecase "Sort by Status" as stbs
+       usecase "Sort by Project" as stbpj
+       usecase "Sort by Tag" as stbtg
+       stbdd ..> st : extends
+       stbp ..> st : extends
+       stbs ..> st : extends
+       stbpj ..> st : extends
+       stbtg ..> st : extends
+     usecase "Search Tasks" as srch
+     usecase "Criteria Search" as ctrsrch
+       ctrsrch ..> srch : extends
+       usecase "Search by Keyword" as shbk
+       usecase "Search by Date" as shbd
+       usecase "Search by Date Range" as srchdtrg
+       usecase "Search by Status" as srchstatus
+       usecase "Search by Week Day" as srchwkdy
+       usecase "Search by Tag" as srchtag
+       shbk ..> ctrsrch : extends
+       shbd ..> ctrsrch : extends
+       srchstatus ..> ctrsrch : extends
+       srchwkdy ..> ctrsrch : extends
+       srchtag ..> ctrsrch : extends
+       srchdtrg ..> ctrsrch : extends
+     usecase "View Activity History" as vah
+     vt ..> st : include
+     vt ..> srch : include
+     vt ..> vah : include
+
+   usecase "Manage collaborators" as mngcollab
+     usecase "Create Collaborator" as crtcollab
+     usecase "Link Collaborator" as linkcollab
+     usecase "View Overloaded Collaborators" as voc
+     mngcollab ..> crtcollab : include
+     mngcollab ..> linkcollab : include
+     mngcollab ..> voc : include
+     linkcollab ..> crtsub : include
+
+   usecase "Transfer Tasks" as trsftsk
+     usecase "Import Tasks" as imptsk
+     usecase "Export Tasks to CSV" as exptskcsv
+     usecase "Export Tasks to iCalendar" as exptskical
+     usecase "Export Single Task" as expsingletsk
+     usecase "Export Project Tasks" as expprojtsk
+     usecase "Export Filtered Tasks" as expfiltertsk
+     trsftsk ..> imptsk : include
+     trsftsk ..> exptskcsv : include
+     trsftsk ..> exptskical : include
+     expsingletsk ..> exptskical : extends
+     expprojtsk ..> exptskical : extends
+     expfiltertsk ..> exptskical : extends
+}
+u --> mt
+u --> mp
+u --> vt
+u --> mngcollab
+u --> trsftsk
+@enduml
