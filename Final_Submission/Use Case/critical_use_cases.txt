@@ -1,0 +1,5 @@
+- Create task
+- Update Task
+  + includes all attributes (except for title and ID)
+  + cancel, complete, and reopen task
+- View Tasks
