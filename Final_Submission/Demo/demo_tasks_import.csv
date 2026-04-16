@@ -1,0 +1,6 @@
+TaskName,Description,Subtask,Status,Priority,DueDate,ProjectName,ProjectDescription,Collaborator,CollaboratorCategory
+"Prepare Sprint Plan","Create sprint goals and backlog shortlist","Draft sprint objective",OPEN,HIGH,2026-04-18,"Team Alpha","Internal product delivery","Ana Lopez",senior
+"Refactor Auth Module","Reduce coupling in login workflow","Split token validator",OPEN,MEDIUM,2026-04-22,"Platform Core","Shared backend components","Ben Ortiz",intermediate
+"Write User Guide","Publish first version of onboarding docs","Collect screenshots",COMPLETED,LOW,2026-04-10,"Docs","User-facing documentation","Carla Diaz",junior
+"Backlog Grooming","Review and clean stale tasks",,OPEN,MEDIUM,,"Team Alpha","Internal product delivery",,
+"Release Checklist","Finalize go-live checks","Verify rollback steps",CANCELLED,HIGH,2026-04-12,"Ops","Release operations","Diego Cruz",senior
