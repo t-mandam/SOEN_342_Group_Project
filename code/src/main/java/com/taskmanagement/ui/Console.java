@@ -129,8 +129,9 @@ public class Console {
         System.out.println("12. Search Task");
         System.out.println("13. Sort Tasks");
         System.out.println("14. Import Tasks");
-        System.out.println("15. Export Tasks");
-        System.out.println("16. Help");
+        System.out.println("15. Export to CSV");
+        System.out.println("16. Export to iCalendar (.ics)");
+        System.out.println("17. Help");
         System.out.println(" 0. Exit");
         System.out.println("==================================================");
     }
@@ -166,8 +167,10 @@ public class Console {
             case "14":
                 return buildImportCommand(scanner);
             case "15":
-                return buildExportCommand(scanner);
+                return buildCsvExportCommand(scanner);
             case "16":
+                return buildIcsExportCommand(scanner);
+            case "17":
                 HelpPrinter.printGeneralHelp();
                 return null;
             default:
@@ -415,6 +418,8 @@ public class Console {
         String choice = scanner.nextLine().trim();
 
         switch (choice) {
+            case "":
+                return "search-task status open";
             case "1":
                 System.out.print("Enter keyword: ");
                 return "search-task keyword " + scanner.nextLine().trim();
@@ -478,7 +483,14 @@ public class Console {
         return "import " + path;
     }
 
-    private String buildExportCommand(Scanner scanner) {
+    private String buildCsvExportCommand(Scanner scanner) {
+        System.out.print("Enter output file name (.csv): ");
+        String filePath = scanner.nextLine().trim();
+
+        return "export filtered " + filePath;
+    }
+
+    private String buildIcsExportCommand(Scanner scanner) {
         System.out.println("Choose export type:");
         System.out.println("1. Export a single task");
         System.out.println("2. Export all tasks in a project");
@@ -521,7 +533,7 @@ public class Console {
     }
 
     private boolean isMenuChoice(String input) {
-        return input.matches("^(?:[0-9]|1[0-6])$");
+        return input.matches("^(?:[0-9]|1[0-7])$");
     }
 
     private boolean processMenuChoiceWithRetry(String menuChoice, Scanner scanner) {

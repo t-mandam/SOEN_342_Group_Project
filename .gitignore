@@ -9,9 +9,11 @@ data/
 *.sqlite
 *.sqlite3
 
-# Test CSV fixture for import validation
+# Test and demo CSV files
 code/src/main/java/com/taskmanagement/import_tasks_test.csv
 code/import_tasks_test.csv
+data/demo_tasks_import.csv
+*.csv
 
 # Logs
 *.log

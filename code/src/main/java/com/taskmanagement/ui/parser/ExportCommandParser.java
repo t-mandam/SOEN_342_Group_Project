@@ -1,12 +1,17 @@
 package com.taskmanagement.ui.parser;
 
 import com.taskmanagement.command.Command;
+import com.taskmanagement.command.ExportCommand;
+import com.taskmanagement.command.ExportData;
 import com.taskmanagement.command.ExportIcsCommand;
 import com.taskmanagement.domain.Project;
 import com.taskmanagement.domain.Task;
 import com.taskmanagement.gateway.IcsCalendarExportGateway;
+import com.taskmanagement.repository.AssignmentCatalog;
+import com.taskmanagement.repository.AssignmentRepository;
 import com.taskmanagement.repository.ProjectCatalog;
 import com.taskmanagement.repository.TaskCatalog;
+import com.taskmanagement.repository.TaskRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +27,9 @@ public class ExportCommandParser {
         if (args == null || args.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Usage:\n" +
-                            "export task <task-id> <file.ics>\n" +
-                            "export project <project-name> <file.ics>\n" +
-                            "export filtered <file.ics>"
+                            "export task <task-id> <file.ics|file.csv>\n" +
+                            "export project <project-name> <file.ics|file.csv>\n" +
+                            "export filtered <file.ics|file.csv>"
             );
         }
 
@@ -44,16 +49,16 @@ public class ExportCommandParser {
             default:
                 throw new IllegalArgumentException(
                         "Usage:\n" +
-                                "export task <task-id> <file.ics>\n" +
-                                "export project <project-name> <file.ics>\n" +
-                                "export filtered <file.ics>"
+                                "export task <task-id> <file.ics|file.csv>\n" +
+                                "export project <project-name> <file.ics|file.csv>\n" +
+                                "export filtered <file.ics|file.csv>"
                 );
         }
     }
 
     private Command parseSingleTaskExport(String[] parts) {
         if (parts.length != 3) {
-            throw new IllegalArgumentException("Usage: export task <task-id> <file.ics>");
+            throw new IllegalArgumentException("Usage: export task <task-id> <file.ics|file.csv>");
         }
 
         Task task = TaskCatalog.getInstance().findById(parts[1]);
@@ -64,14 +69,22 @@ public class ExportCommandParser {
         List<Task> tasks = new ArrayList<>();
         tasks.add(task);
 
-        return new ExportIcsCommand(tasks, parts[2], new IcsCalendarExportGateway());
+        String filePath = parts[2];
+        if (filePath.toLowerCase().endsWith(".csv")) {
+            ExportCommand exportCmd = new ExportCommand(TaskCatalog.getInstance(), filePath);
+            exportCmd.setUseImportCsvFormat(true);
+            exportCmd.setTasksOverride(tasks);
+            return exportCmd;
+        } else {
+            return new ExportIcsCommand(tasks, filePath, new IcsCalendarExportGateway());
+        }
     }
 
     private Command parseProjectExport(String args) {
         String remainder = args.substring("project".length()).trim();
         int lastSpace = remainder.lastIndexOf(' ');
         if (lastSpace <= 0) {
-            throw new IllegalArgumentException("Usage: export project <project-name> <file.ics>");
+            throw new IllegalArgumentException("Usage: export project <project-name> <file.ics|file.csv>");
         }
 
         String projectName = remainder.substring(0, lastSpace).trim();
@@ -82,22 +95,37 @@ public class ExportCommandParser {
             throw new IllegalArgumentException("Project not found: " + projectName);
         }
 
-        return new ExportIcsCommand(project.getTasks(), filePath, new IcsCalendarExportGateway());
+        if (filePath.toLowerCase().endsWith(".csv")) {
+            ExportCommand exportCmd = new ExportCommand(TaskCatalog.getInstance(), filePath);
+            exportCmd.setUseImportCsvFormat(true);
+            exportCmd.setTasksOverride(project.getTasks());
+            return exportCmd;
+        } else {
+            return new ExportIcsCommand(project.getTasks(), filePath, new IcsCalendarExportGateway());
+        }
     }
 
     private Command parseFilteredExport(String[] parts) {
         if (parts.length != 2) {
-            throw new IllegalArgumentException("Usage: export filtered <file.ics>");
+            throw new IllegalArgumentException("Usage: export filtered <file.ics|file.csv>");
         }
 
         if (searchTaskCommandParser == null || !searchTaskCommandParser.hasExecutedSearch()) {
             throw new IllegalStateException("No search results available. Run search-task first, then export filtered.");
         }
 
-        return new ExportIcsCommand(
-                searchTaskCommandParser.getLastSearchResults(),
-                parts[1],
-                new IcsCalendarExportGateway()
-        );
+        String filePath = parts[1];
+        if (filePath.toLowerCase().endsWith(".csv")) {
+            ExportCommand exportCmd = new ExportCommand(TaskCatalog.getInstance(), filePath);
+            exportCmd.setUseImportCsvFormat(true);
+            exportCmd.setTasksOverride(searchTaskCommandParser.getLastSearchResults());
+            return exportCmd;
+        } else {
+            return new ExportIcsCommand(
+                    searchTaskCommandParser.getLastSearchResults(),
+                    filePath,
+                    new IcsCalendarExportGateway()
+            );
+        }
     }
 }
